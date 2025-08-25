@@ -14,14 +14,17 @@ import LockIcon from "@/components/icons/lock"
 import { useAuth } from "@/hooks/use-auth"
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, detachGoogleAccount } = useAuth();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDetaching, setIsDetaching] = useState(false);
   const [showDetachModal, setShowDetachModal] = useState(false);
+  const [detachEmail, setDetachEmail] = useState('');
   const [detachPassword, setDetachPassword] = useState('');
   const [detachConfirmPassword, setDetachConfirmPassword] = useState('');
+  const [detachError, setDetachError] = useState('');
+  const [detachSuccess, setDetachSuccess] = useState(false);
   
   // Extract user information
   const userEmail = user?.email || '';
@@ -54,34 +57,57 @@ export default function SettingsPage() {
   };
 
   const handleDetachGoogle = async () => {
-    if (!detachPassword || !detachConfirmPassword) {
-      alert('Please fill in both password fields');
+    // Reset error state
+    setDetachError('');
+    
+    // Validation
+    if (!detachEmail || !detachPassword || !detachConfirmPassword) {
+      setDetachError('Please fill in all fields');
       return;
     }
     
     if (detachPassword !== detachConfirmPassword) {
-      alert('Passwords do not match');
+      setDetachError('Passwords do not match');
+      return;
+    }
+
+    if (detachPassword.length < 6) {
+      setDetachError('Password must be at least 6 characters');
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(detachEmail)) {
+      setDetachError('Please enter a valid email address');
       return;
     }
 
     setIsDetaching(true);
     try {
-      // TODO: Implement actual Google account detachment
-      // This would require Firebase Auth API to unlink Google provider
-      console.log('Detaching Google account with password:', detachPassword);
+      const result = await detachGoogleAccount(detachEmail, detachPassword);
       
-      // Simulate the process
-      setTimeout(() => {
-        setIsDetaching(false);
-        setShowDetachModal(false);
-        setDetachPassword('');
-        setDetachConfirmPassword('');
-        alert('Google account detached successfully! You can now sign in with email/password.');
-      }, 2000);
+      if (result.success) {
+        setDetachSuccess(true);
+        setTimeout(() => {
+          setShowDetachModal(false);
+          setDetachEmail('');
+          setDetachPassword('');
+          setDetachConfirmPassword('');
+          setDetachError('');
+          setDetachSuccess(false);
+          // Refresh the page to show updated user state
+          window.location.reload();
+        }, 3000);
+      } else {
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to detach Google account';
+        setDetachError(errorMessage);
+      }
     } catch (error) {
       console.error('Detach error:', error);
+      setDetachError('An unexpected error occurred');
+    } finally {
       setIsDetaching(false);
-      alert('Failed to detach Google account. Please try again.');
     }
   };
 
@@ -377,53 +403,91 @@ export default function SettingsPage() {
       {showDetachModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-background p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-display mb-4">Detach Google Account</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              To detach your Google account, you need to set up a password for your account first.
-            </p>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="detachPassword">New Password</Label>
-                <Input 
-                  id="detachPassword" 
-                  type="password" 
-                  value={detachPassword}
-                  onChange={(e) => setDetachPassword(e.target.value)}
-                  placeholder="Enter new password"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="detachConfirmPassword">Confirm Password</Label>
-                <Input 
-                  id="detachConfirmPassword" 
-                  type="password" 
-                  value={detachConfirmPassword}
-                  onChange={(e) => setDetachConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
-                />
-              </div>
-            </div>
+            {!detachSuccess ? (
+              <>
+                <h3 className="text-lg font-display mb-4">Detach Google Account</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  To detach your Google account, you need to set up a new email and password for your account.
+                </p>
+                
+                {detachError && (
+                  <div className="p-3 rounded-lg bg-red-50 border border-red-200 mb-4">
+                    <p className="text-sm text-red-700">{detachError}</p>
+                  </div>
+                )}
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="detachEmail">New Email Address</Label>
+                    <Input 
+                      id="detachEmail" 
+                      type="email" 
+                      value={detachEmail}
+                      onChange={(e) => setDetachEmail(e.target.value)}
+                      placeholder="Enter new email address"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="detachPassword">New Password</Label>
+                    <Input 
+                      id="detachPassword" 
+                      type="password" 
+                      value={detachPassword}
+                      onChange={(e) => setDetachPassword(e.target.value)}
+                      placeholder="Enter new password (min 6 characters)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="detachConfirmPassword">Confirm Password</Label>
+                    <Input 
+                      id="detachConfirmPassword" 
+                      type="password" 
+                      value={detachConfirmPassword}
+                      onChange={(e) => setDetachConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
 
-            <div className="flex gap-2 mt-6">
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setShowDetachModal(false);
-                  setDetachPassword('');
-                  setDetachConfirmPassword('');
-                }}
-                disabled={isDetaching}
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleDetachGoogle}
-                disabled={isDetaching}
-              >
-                {isDetaching ? 'Detaching...' : 'Detach Account'}
-              </Button>
-            </div>
+                <div className="flex gap-2 mt-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowDetachModal(false);
+                      setDetachEmail('');
+                      setDetachPassword('');
+                      setDetachConfirmPassword('');
+                      setDetachError('');
+                    }}
+                    disabled={isDetaching}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleDetachGoogle}
+                    disabled={isDetaching}
+                  >
+                    {isDetaching ? 'Detaching...' : 'Detach Account'}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="text-green-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-display mb-2">Success!</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your Google account has been detached successfully. 
+                  A verification email has been sent to your new email address.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Please check your email and click the verification link to complete the process.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

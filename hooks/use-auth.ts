@@ -7,7 +7,13 @@ import {
   sendPasswordResetEmail,
   signInWithPopup,
   GoogleAuthProvider,
-  User 
+  User,
+  updatePassword,
+  updateEmail,
+  sendEmailVerification,
+  unlink,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -70,6 +76,36 @@ export function useAuth() {
     }
   };
 
+  const detachGoogleAccount = async (newEmail: string, newPassword: string) => {
+    try {
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+
+      // Check if user is actually a Google user
+      const isGoogleUser = user.providerData.some(provider => provider.providerId === 'google.com');
+      if (!isGoogleUser) {
+        throw new Error('User is not connected to Google');
+      }
+
+      // Update email first
+      await updateEmail(user, newEmail);
+      
+      // Update password
+      await updatePassword(user, newPassword);
+      
+      // Unlink Google provider
+      await unlink(user, 'google.com');
+      
+      // Send email verification
+      await sendEmailVerification(user);
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  };
+
   return {
     user,
     loading,
@@ -78,5 +114,6 @@ export function useAuth() {
     logout,
     resetPassword,
     signInWithGoogle,
+    detachGoogleAccount,
   };
 } 
