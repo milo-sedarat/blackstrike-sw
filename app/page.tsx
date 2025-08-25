@@ -4,21 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import Image from 'next/image';
 import DashboardPageLayout from "@/components/dashboard/layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import TradingBots from "@/components/dashboard/trading-bots";
-import MarketAlerts from "@/components/dashboard/market-alerts";
-import AIBotCreator from "@/components/dashboard/ai-bot-creator";
-import LivePortfolio from "@/components/dashboard/live-portfolio";
+
 import Stat from "@/components/dashboard/stat";
 import Chart from "@/components/dashboard/chart";
 import LightningIcon from "@/components/icons/lightning";
 import AtomIcon from "@/components/icons/atom";
 import BellIcon from "@/components/icons/bell";
-import GearIcon from "@/components/icons/gear";
-import LockIcon from "@/components/icons/lock";
 import BoomIcon from "@/components/icons/boom";
 
 
@@ -67,40 +58,7 @@ function Dashboard() {
       </div>
 
       {/* Portfolio Performance Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <GearIcon className="size-5" />
-            Portfolio Performance
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Chart />
-        </CardContent>
-      </Card>
-
-      {/* Main Content and AI Assistant */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Trading Bots and Market Alerts */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Trading Bots and Market Alerts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Trading Bots */}
-            <TradingBots />
-            
-            {/* Market Alerts */}
-            <MarketAlerts />
-          </div>
-          
-          {/* Live Portfolio */}
-          <LivePortfolio />
-        </div>
-
-        {/* Right Column - AI Bot Creator */}
-        <div className="lg:col-span-1">
-          <AIBotCreator />
-        </div>
-      </div>
+      <Chart />
 
     </DashboardPageLayout>
   );
