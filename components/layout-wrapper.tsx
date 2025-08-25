@@ -17,9 +17,20 @@ const mockData = mockDataJson as MockData;
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
-  const is404Page = pathname === '/404' || pathname === '/not-found' || pathname === '/login' || pathname === '/signup';
-  const isRootPage = pathname === '/';
-  const isPublicPage = isAuthPage || is404Page || isRootPage;
+  
+  // Define valid routes that should show the dashboard layout
+  const validRoutes = [
+    '/',
+    '/analytics',
+    '/bots',
+    '/defi',
+    '/exchanges',
+    '/portfolio',
+    '/settings'
+  ];
+  
+  const isValidRoute = pathname && validRoutes.includes(pathname);
+  const isPublicPage = isAuthPage || !isValidRoute;
 
   if (isPublicPage) {
     return <>{children}</>;

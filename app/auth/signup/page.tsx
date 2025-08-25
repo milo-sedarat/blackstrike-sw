@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/use-auth';
 
 export default function SignupPageComponent() {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('signup');
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const router = useRouter();
 
   const handleSignup = async (email: string, password: string, remember: boolean) => {
@@ -30,12 +30,26 @@ export default function SignupPageComponent() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result.success) {
+        router.push('/');
+      } else {
+        console.error('Google sign-in failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+    }
+  };
+
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center px-4 py-12">
       <LoginPage.VideoBackground videoUrl="https://videos.pexels.com/video-files/8128311/8128311-uhd_2560_1440_25fps.mp4" />
                         <div className="relative z-20 w-full max-w-lg animate-fadeIn">
         <LoginPage.LoginForm 
           onSubmit={handleSignup}
+          onGoogleSignIn={handleGoogleSignIn}
           mode={mode}
           onModeChange={handleModeChange}
         />

@@ -5,6 +5,7 @@ import { Eye, EyeOff, Mail, Lock, Chrome, Twitter, Gamepad2 } from 'lucide-react
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string, remember: boolean) => void;
+  onGoogleSignIn?: () => void;
   mode?: 'login' | 'signup' | 'forgot';
   onModeChange?: (mode: 'login' | 'signup' | 'forgot') => void;
 }
@@ -110,7 +111,7 @@ const VideoBackground: React.FC<VideoBackgroundProps> = ({ videoUrl }) => {
 };
 
 // Main LoginForm Component
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, mode = 'login', onModeChange }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onGoogleSignIn, mode = 'login', onModeChange }) => {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -335,7 +336,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, mode = 'login', onModeC
         </button>
       </form>
 
-      {mode === 'login' && (
+      {(mode === 'login' || mode === 'signup') && (
         <div className="mt-8">
           <div className="relative flex items-center justify-center">
             <div className="border-t border-white/10 absolute w-full"></div>
@@ -346,6 +347,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, mode = 'login', onModeC
           <div className="mt-6">
             <button
               type="button"
+              onClick={onGoogleSignIn}
               className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white/5 border border-white/10 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

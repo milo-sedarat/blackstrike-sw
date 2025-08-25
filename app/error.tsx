@@ -14,15 +14,52 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Something went wrong!</h2>
-        <button
-          onClick={reset}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-        >
-          Try again
-        </button>
+    <div className="min-h-screen bg-black flex flex-col">
+      {/* BlackStrike Logo - Top Left */}
+      <div className="absolute top-8 left-8 z-10">
+        <img
+          src="/assets/blackstrike-logo.png"
+          alt="BlackStrike"
+          className="h-12 w-auto"
+        />
+      </div>
+
+      {/* Error Content - Centered */}
+      <div className="flex flex-col items-center justify-center flex-1 px-4">
+        <div className="text-center space-y-8">
+          <div className="flex flex-col items-center justify-center gap-10">
+            <picture className="w-1/4 aspect-square grayscale opacity-50">
+              <img
+                src="/assets/bot_greenprint.gif"
+                alt="Security Status"
+                className="size-full object-contain"
+              />
+            </picture>
+
+            <div className="flex flex-col items-center justify-center gap-2">
+              <h1 className="text-xl font-bold uppercase text-muted-foreground">
+                Something went wrong!
+              </h1>
+              <p className="text-sm max-w-sm text-center text-muted-foreground text-balance">
+                An unexpected error occurred. Please try again or contact support if the problem persists.
+              </p>
+              <div className="flex gap-4 mt-4">
+                <button
+                  onClick={reset}
+                  className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Try again
+                </button>
+                <a 
+                  href="/"
+                  className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Go to Dashboard
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

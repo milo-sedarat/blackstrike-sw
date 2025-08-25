@@ -5,6 +5,8 @@ import {
   signOut, 
   onAuthStateChanged,
   sendPasswordResetEmail,
+  signInWithPopup,
+  GoogleAuthProvider,
   User 
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -58,6 +60,16 @@ export function useAuth() {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      return { success: true, user: result.user };
+    } catch (error) {
+      return { success: false, error };
+    }
+  };
+
   return {
     user,
     loading,
@@ -65,5 +77,6 @@ export function useAuth() {
     signUp,
     logout,
     resetPassword,
+    signInWithGoogle,
   };
 } 

@@ -39,6 +39,12 @@ export default function NotFound() {
                 The page you're looking for doesn't exist in the BlackStrike universe. 
                 Navigate back to your trading dashboard or contact support if you believe this is an error.
               </p>
+              <a 
+                href="/"
+                className="mt-4 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Go to Dashboard
+              </a>
             </div>
           </div>
         </div>
