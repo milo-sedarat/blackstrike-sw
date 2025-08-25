@@ -123,7 +123,7 @@ export default function BotsPage() {
       toast({
         title: "Error",
         description: "Failed to create bot",
-        variant: "destructive",
+        type: "error",
       });
     }
   };
@@ -154,12 +154,13 @@ export default function BotsPage() {
       toast({
         title: "Success",
         description: `Bot ${action}ed successfully`,
+        type: "success",
       });
     } catch (err) {
       toast({
         title: "Error",
         description: `Failed to ${action} bot`,
-        variant: "destructive",
+        type: "error",
       });
     }
   };
@@ -184,12 +185,13 @@ export default function BotsPage() {
       toast({
         title: "Success",
         description: "Bot deleted successfully",
+        type: "success",
       });
     } catch (err) {
       toast({
         title: "Error",
         description: "Failed to delete bot",
-        variant: "destructive",
+        type: "error",
       });
     }
   };
@@ -229,6 +231,7 @@ export default function BotsPage() {
         header={{
           title: "Trading Bots",
           description: "Manage your automated trading strategies",
+          icon: Settings,
         }}
       >
         <div className="flex items-center justify-center h-64">
@@ -243,6 +246,7 @@ export default function BotsPage() {
       header={{
         title: "Trading Bots",
         description: "Manage your automated trading strategies",
+        icon: Settings,
       }}
     >
       {error && (
