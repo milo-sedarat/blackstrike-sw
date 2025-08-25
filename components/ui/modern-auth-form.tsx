@@ -177,7 +177,13 @@ const ModernAuthForm = ({
                 className="mb-6"
               >
                 <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                  <Zap className="text-white h-8 w-8" />
+                  <Image
+                    src="/assets/blackstrike-logo.png"
+                    alt="BlackStrike"
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 object-contain"
+                  />
                 </div>
               </motion.div>
               <motion.h2 
