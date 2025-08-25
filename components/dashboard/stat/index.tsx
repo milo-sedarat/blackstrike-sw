@@ -69,7 +69,7 @@ export default function DashboardStat({
 
       <CardContent className="bg-accent flex-1 pt-2 md:pt-6 overflow-clip relative">
         <div className="flex items-center min-h-0">
-          <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display break-words leading-tight">
+          <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-display break-words leading-tight">
             {isNumeric ? (
               <NumberFlow
                 value={numericValue}

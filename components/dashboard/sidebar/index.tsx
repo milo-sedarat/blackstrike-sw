@@ -151,12 +151,12 @@ export function DashboardSidebar({ className, ...props }: React.ComponentProps<t
       <SidebarFooter className="p-0">
         {/* Green Animation Section - Right above User */}
         <div className="flex items-center justify-center p-4 mb-2">
-          <picture className="w-16 h-16 grayscale opacity-50">
+          <picture className="w-32 h-32 grayscale opacity-50">
             <Image
               src="/assets/bot_greenprint.gif"
               alt="Security Status"
-              width={64}
-              height={64}
+              width={128}
+              height={128}
               quality={90}
               className="size-full object-contain"
             />

@@ -78,10 +78,10 @@ const stats = [
   {
     label: "Total Portfolio",
     value: "$124.7K",
-    description: "+$2.8K (+2.34%)",
+    description: "-$2.8K (-2.34%)",
     icon: LightningIcon,
-    intent: "positive" as const,
-    direction: "up" as const
+    intent: "negative" as const,
+    direction: "down" as const
   },
   {
     label: "Active Bots",
