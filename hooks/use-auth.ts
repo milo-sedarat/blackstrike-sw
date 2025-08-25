@@ -13,7 +13,8 @@ import {
   sendEmailVerification,
   unlink,
   EmailAuthProvider,
-  reauthenticateWithCredential
+  reauthenticateWithCredential,
+  updateProfile
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -33,15 +34,34 @@ export function useAuth() {
   const signIn = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Check if email is verified
+      if (!result.user.emailVerified) {
+        await signOut(auth);
+        return { success: false, error: new Error('Please verify your email before signing in. Check your inbox for a verification link.') };
+      }
+      
       return { success: true, user: result.user };
     } catch (error) {
       return { success: false, error };
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Update profile with first and last name
+      await updateProfile(result.user, {
+        displayName: `${firstName} ${lastName}`
+      });
+      
+      // Send email verification
+      await sendEmailVerification(result.user);
+      
+      // Sign out the user immediately after signup
+      await signOut(auth);
+      
       return { success: true, user: result.user };
     } catch (error) {
       return { success: false, error };
@@ -68,8 +88,7 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
       return { success: true, user: result.user };
     } catch (error) {
       return { success: false, error };

@@ -10,22 +10,25 @@ export default function LoginPageComponent() {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const { signIn, signInWithGoogle } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
     
     try {
       const result = await signIn(email, password);
       if (result.success) {
         router.push('/');
       } else {
-        console.error('Login failed:', result.error);
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Login failed. Please try again.';
+        setError(errorMessage);
       }
     } catch (error) {
-      console.error('Login error:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -37,10 +40,11 @@ export default function LoginPageComponent() {
       if (result.success) {
         router.push('/');
       } else {
-        console.error('Google sign-in failed:', result.error);
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Google sign-in failed';
+        setError(errorMessage);
       }
     } catch (error) {
-      console.error('Google sign-in error:', error);
+      setError('Google sign-in error occurred');
     }
   };
 
@@ -86,6 +90,12 @@ export default function LoginPageComponent() {
             </p>
           </div>
 
+          {error && (
+            <div className="p-3 rounded-lg bg-red-900/50 border border-red-700">
+              <p className="text-red-300 text-sm">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
@@ -118,18 +128,23 @@ export default function LoginPageComponent() {
             </div>
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center">
+              <div className="flex items-center">
                 <input
+                  id="remember"
                   type="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
-                  className="rounded border-gray-600 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <span className="ml-2 text-sm text-gray-300">Remember me</span>
-              </label>
-              <a href="/auth/forgot-password" className="text-sm text-blue-500 hover:text-blue-400">
-                Forgot password?
-              </a>
+                <label htmlFor="remember" className="ml-2 block text-sm text-gray-300">
+                  Remember me
+                </label>
+              </div>
+              <div className="text-sm">
+                <a href="/auth/forgot-password" className="text-blue-500 hover:text-blue-400">
+                  Forgot password?
+                </a>
+              </div>
             </div>
 
             <button
