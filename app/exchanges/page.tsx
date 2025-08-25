@@ -11,7 +11,7 @@ import Image from "next/image"
 const centralizedExchanges = [
   {
     name: "Binance",
-    logo: "https://cryptologos.cc/logos/binance-coin-bnb-logo.svg",
+    logo: "/exchanges/centralized/binance.png",
     description: "World's largest cryptocurrency exchange by trading volume",
     features: ["Spot", "Futures", "Margin", "Options"],
     isPartner: true,
@@ -19,7 +19,7 @@ const centralizedExchanges = [
   },
   {
     name: "Coinbase Advanced",
-    logo: "https://cryptologos.cc/logos/coinbase-coin-logo.svg", 
+    logo: "/exchanges/centralized/coinbase-advanced.png", 
     description: "Leading US-based exchange with institutional features",
     features: ["Spot", "Advanced Trading", "Pro"],
     isPartner: true,
@@ -27,7 +27,7 @@ const centralizedExchanges = [
   },
   {
     name: "Kraken",
-    logo: "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.svg",
+    logo: "/exchanges/centralized/kraken.png",
     description: "Secure and reliable exchange with advanced trading",
     features: ["Spot", "Futures", "Margin", "Staking"],
     isPartner: false,
@@ -35,7 +35,7 @@ const centralizedExchanges = [
   },
   {
     name: "KuCoin",
-    logo: "https://cryptologos.cc/logos/kucoin-shares-kcs-logo.svg",
+    logo: "/exchanges/centralized/kucoin.png",
     description: "Global crypto exchange serving millions worldwide",
     features: ["Spot", "Futures", "Margin", "P2P"],
     isPartner: true,
@@ -43,7 +43,7 @@ const centralizedExchanges = [
   },
   {
     name: "OKX",
-    logo: "https://seeklogo.com/images/O/okx-logo-D3C7B6B531-seeklogo.com.png",
+    logo: "/exchanges/centralized/okx.png",
     description: "Top global crypto exchange and Web3 ecosystem",
     features: ["Spot", "Futures", "Options", "Web3"],
     isPartner: true,
@@ -51,7 +51,7 @@ const centralizedExchanges = [
   },
   {
     name: "Bybit",
-    logo: "https://seeklogo.com/images/B/bybit-logo-C0CDABA41B-seeklogo.com.png",
+    logo: "/exchanges/centralized/bybit.png",
     description: "High-performance derivatives and spot trading",
     features: ["Derivatives", "Spot", "Copy Trading"],
     isPartner: false,
@@ -59,7 +59,7 @@ const centralizedExchanges = [
   },
   {
     name: "Bitfinex", 
-    logo: "https://seeklogo.com/images/B/bitfinex-logo-4C8AC6EC4B-seeklogo.com.png",
+    logo: "/exchanges/centralized/bitfinex.png",
     description: "Advanced trading platform with deep liquidity",
     features: ["Spot", "Margin", "Derivatives"],
     isPartner: false,
@@ -67,7 +67,7 @@ const centralizedExchanges = [
   },
   {
     name: "Huobi (HTX)",
-    logo: "https://cryptologos.cc/logos/huobi-token-ht-logo.svg",
+    logo: "/exchanges/centralized/huobi-htx.png",
     description: "Leading global digital asset exchange",
     features: ["Spot", "Futures", "Margin"],
     isPartner: false,
@@ -75,7 +75,7 @@ const centralizedExchanges = [
   },
   {
     name: "Gate.io",
-    logo: "https://seeklogo.com/images/G/gate-io-logo-6F3F98F4B6-seeklogo.com.png", 
+    logo: "/exchanges/centralized/gate-io.png", 
     description: "Comprehensive crypto trading platform",
     features: ["Spot", "Futures", "Margin", "Copy Trading"],
     isPartner: false,
@@ -83,7 +83,7 @@ const centralizedExchanges = [
   },
   {
     name: "MEXC",
-    logo: "https://seeklogo.com/images/M/mexc-logo-7A5F672BF7-seeklogo.com.png",
+    logo: "/exchanges/centralized/mexc.png",
     description: "Global cryptocurrency exchange with low fees",
     features: ["Spot", "Futures", "Margin"],
     isPartner: false,
@@ -95,7 +95,7 @@ const centralizedExchanges = [
 const ammExchanges = [
   {
     name: "Uniswap",
-    logo: "https://cryptologos.cc/logos/uniswap-uni-logo.svg",
+    logo: "/exchanges/amm-dex/uniswap.png",
     description: "Leading decentralized exchange on Ethereum",
     features: ["Spot", "Liquidity Pools", "Yield Farming"],
     blockchain: "Ethereum",
@@ -103,7 +103,7 @@ const ammExchanges = [
   },
   {
     name: "PancakeSwap",
-    logo: "https://cryptologos.cc/logos/pancakeswap-cake-logo.svg",
+    logo: "/exchanges/amm-dex/pancakeswap.png",
     description: "Most popular DEX on BNB Smart Chain", 
     features: ["Spot", "Farms", "Pools", "NFT"],
     blockchain: "BNB Chain",
@@ -111,7 +111,7 @@ const ammExchanges = [
   },
   {
     name: "SushiSwap",
-    logo: "https://cryptologos.cc/logos/sushiswap-sushi-logo.svg",
+    logo: "/exchanges/amm-dex/sushiswap.png",
     description: "Multi-chain AMM with advanced features",
     features: ["Spot", "Yield Farming", "Lending"],
     blockchain: "Multi-chain",
@@ -119,7 +119,7 @@ const ammExchanges = [
   },
   {
     name: "Balancer",
-    logo: "https://cryptologos.cc/logos/balancer-bal-logo.svg", 
+    logo: "/exchanges/amm-dex/balancer.png", 
     description: "Automated portfolio manager and liquidity provider",
     features: ["Weighted Pools", "Stable Pools", "Boosted Pools"],
     blockchain: "Ethereum",
@@ -128,7 +128,7 @@ const ammExchanges = [
   },
   {
     name: "Curve Finance",
-    logo: "https://cryptologos.cc/logos/curve-dao-token-crv-logo.svg",
+    logo: "/exchanges/amm-dex/curve-finance.png",
     description: "Specialized stablecoin exchange with deep liquidity", 
     features: ["Stable Swaps", "Liquidity Pools", "Yield"],
     blockchain: "Multi-chain",
@@ -136,7 +136,7 @@ const ammExchanges = [
   },
   {
     name: "Raydium",
-    logo: "https://cryptologos.cc/logos/raydium-ray-logo.svg",
+    logo: "/exchanges/amm-dex/raydium.png",
     description: "Leading automated market maker on Solana",
     features: ["Spot", "Yield Farming", "Liquidity"],
     blockchain: "Solana", 
@@ -148,7 +148,7 @@ const ammExchanges = [
 const clobDexExchanges = [
   {
     name: "dYdX",
-    logo: "https://cryptologos.cc/logos/dydx-dydx-logo.svg",
+    logo: "/exchanges/clob-dex/dydx.png",
     description: "Leading decentralized derivatives exchange",
     features: ["Perpetuals", "Margin", "Spot"],
     blockchain: "StarkEx", 
@@ -156,7 +156,7 @@ const clobDexExchanges = [
   },
   {
     name: "Hyperliquid", 
-    logo: "https://pbs.twimg.com/profile_images/1735069742096654336/4RoZjNWI_400x400.jpg",
+    logo: "/exchanges/clob-dex/hyperliquid.png",
     description: "High-performance onchain perpetuals exchange",
     features: ["Perpetuals", "Spot", "Vaults"],
     blockchain: "Hyperliquid L1",
@@ -165,7 +165,7 @@ const clobDexExchanges = [
   },
   {
     name: "XRP Ledger DEX",
-    logo: "https://cryptologos.cc/logos/xrp-xrp-logo.svg",
+    logo: "/exchanges/clob-dex/xrp-ledger-dex.png",
     description: "Built-in decentralized exchange on XRP Ledger", 
     features: ["CLOB", "AMM", "Cross-currency"],
     blockchain: "XRP Ledger",
@@ -173,7 +173,7 @@ const clobDexExchanges = [
   },
   {
     name: "Loopring",
-    logo: "https://cryptologos.cc/logos/loopring-lrc-logo.svg",
+    logo: "/exchanges/clob-dex/loopring.png",
     description: "Ethereum zkRollup exchange protocol",
     features: ["Spot", "AMM", "Order Books"], 
     blockchain: "Ethereum L2",
@@ -185,7 +185,7 @@ const clobDexExchanges = [
 const aggregatorExchanges = [
   {
     name: "1inch",
-    logo: "https://cryptologos.cc/logos/1inch-1inch-logo.svg",
+    logo: "/exchanges/aggregators/1inch.png",
     description: "Leading DEX aggregator with optimal routing", 
     features: ["Spot", "Limit Orders", "Fusion"],
     blockchain: "Multi-chain",
@@ -193,7 +193,7 @@ const aggregatorExchanges = [
   },
   {
     name: "Jupiter",
-    logo: "https://pbs.twimg.com/profile_images/1735719117269393408/k5P82heF_400x400.jpg", 
+    logo: "/exchanges/aggregators/jupiter.png", 
     description: "Key liquidity aggregator for Solana ecosystem",
     features: ["Spot", "Limit Orders", "DCA"],
     blockchain: "Solana",
@@ -201,7 +201,7 @@ const aggregatorExchanges = [
   },
   {
     name: "Derive",
-    logo: "https://pbs.twimg.com/profile_images/1578120304649801730/GbNOZ-j3_400x400.jpg",
+    logo: "/exchanges/aggregators/derive.png",
     description: "Decentralized exchange aggregator for best prices",
     features: ["Aggregation", "Cross-chain", "Best Prices"],
     blockchain: "Multi-chain", 
