@@ -29,23 +29,30 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Animated Background - Same as 404 page */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-            <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
-            <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000"></div>
-          </div>
-        </div>
-
         {/* Loading Content - Centered */}
-        <div className="flex flex-col items-center justify-center flex-1 px-4 relative z-10">
-          <div className="text-center space-y-6">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-white">BlackStrike</h1>
-              <p className="text-muted-foreground">Loading...</p>
+        <div className="flex flex-col items-center justify-center flex-1 px-4">
+          <div className="text-center space-y-8">
+            <div className="flex flex-col items-center justify-center gap-10">
+              <picture className="w-1/4 aspect-square grayscale opacity-50">
+                <Image
+                  src="/assets/bot_greenprint.gif"
+                  alt="Security Status"
+                  width={1000}
+                  height={1000}
+                  quality={90}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="size-full object-contain"
+                />
+              </picture>
+
+              <div className="flex flex-col items-center justify-center gap-2">
+                <h1 className="text-xl font-bold uppercase text-muted-foreground">
+                  Loading
+                </h1>
+                <p className="text-sm max-w-sm text-center text-muted-foreground text-balance">
+                  Initializing BlackStrike...
+                </p>
+              </div>
             </div>
           </div>
         </div>
