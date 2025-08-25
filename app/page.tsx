@@ -77,8 +77,8 @@ const marketAlerts = [
 const stats = [
   {
     label: "Total Portfolio",
-    value: "$124,750.50",
-    description: "+$2,847.30 (+2.34%)",
+    value: "$124.7K",
+    description: "+$2.8K (+2.34%)",
     icon: LightningIcon,
     intent: "positive" as const,
     direction: "up" as const
@@ -93,8 +93,8 @@ const stats = [
   },
   {
     label: "24h Volume",
-    value: "$847,230",
-    description: "+$12,450 (+1.49%)",
+    value: "$847K",
+    description: "+$12K (+1.49%)",
     icon: BoomIcon,
     intent: "positive" as const,
     direction: "up" as const

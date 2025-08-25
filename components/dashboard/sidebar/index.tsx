@@ -148,22 +148,21 @@ export function DashboardSidebar({ className, ...props }: React.ComponentProps<t
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Green Animation Section */}
-      <div className="flex-1 flex items-center justify-center p-4">
-        <picture className="w-full aspect-square grayscale opacity-50">
-          <Image
-            src="/assets/bot_greenprint.gif"
-            alt="Security Status"
-            width={1000}
-            height={1000}
-            quality={90}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="size-full object-contain"
-          />
-        </picture>
-      </div>
-
       <SidebarFooter className="p-0">
+        {/* Green Animation Section - Right above User */}
+        <div className="flex items-center justify-center p-4 mb-2">
+          <picture className="w-16 h-16 grayscale opacity-50">
+            <Image
+              src="/assets/bot_greenprint.gif"
+              alt="Security Status"
+              width={64}
+              height={64}
+              quality={90}
+              className="size-full object-contain"
+            />
+          </picture>
+        </div>
+
         <SidebarGroup>
           <SidebarGroupLabel>
             <Bullet className="mr-2" />

@@ -68,8 +68,8 @@ export default function DashboardStat({
       </CardHeader>
 
       <CardContent className="bg-accent flex-1 pt-2 md:pt-6 overflow-clip relative">
-        <div className="flex items-center">
-          <span className="text-4xl md:text-5xl font-display">
+        <div className="flex items-center min-h-0">
+          <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display break-words leading-tight">
             {isNumeric ? (
               <NumberFlow
                 value={numericValue}
@@ -81,15 +81,15 @@ export default function DashboardStat({
             )}
           </span>
           {tag && (
-            <Badge variant="default" className="uppercase ml-3">
+            <Badge variant="default" className="uppercase ml-2 flex-shrink-0">
               {tag}
             </Badge>
           )}
         </div>
 
         {description && (
-          <div className="justify-between">
-            <p className="text-xs md:text-sm font-medium text-muted-foreground tracking-wide">
+          <div className="justify-between mt-2">
+            <p className="text-xs md:text-sm font-medium text-muted-foreground tracking-wide break-words">
               {description}
             </p>
           </div>
