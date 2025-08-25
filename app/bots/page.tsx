@@ -53,6 +53,8 @@ export default function BotsPage() {
   useEffect(() => {
     if (user) {
       fetchBots();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -67,16 +69,28 @@ export default function BotsPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch bots');
+        // Map common errors to actionable messages
+        if (response.status === 401) {
+          setError('Please log in to view your bots.');
+          return;
+        }
+        if (response.status === 503) {
+          setError('Trading service not available. Server config (Firebase Admin) missing.');
+          return;
+        }
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || 'Failed to fetch bots');
       }
 
       const data = await response.json();
       setBots(data);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch bots');
+      const message = err instanceof Error ? err.message : 'Failed to fetch bots';
+      setError(message);
       toast({
         title: "Error",
-        description: "Failed to fetch bots",
+        description: message,
         type: "error",
       });
     } finally {
@@ -100,7 +114,8 @@ export default function BotsPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create bot');
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || 'Failed to create bot');
       }
 
       const newBot = await response.json();
@@ -120,9 +135,10 @@ export default function BotsPage() {
         type: "success",
       });
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create bot';
       toast({
         title: "Error",
-        description: "Failed to create bot",
+        description: message,
         type: "error",
       });
     }
@@ -141,7 +157,8 @@ export default function BotsPage() {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to ${action} bot`);
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || `Failed to ${action} bot`);
       }
 
       // Update local state
@@ -157,9 +174,10 @@ export default function BotsPage() {
         type: "success",
       });
     } catch (err) {
+      const message = err instanceof Error ? err.message : `Failed to ${action} bot`;
       toast({
         title: "Error",
-        description: `Failed to ${action} bot`,
+        description: message,
         type: "error",
       });
     }
@@ -178,7 +196,8 @@ export default function BotsPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete bot');
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || 'Failed to delete bot');
       }
 
       setBots(prev => prev.filter(bot => bot.id !== botId));
@@ -188,9 +207,10 @@ export default function BotsPage() {
         type: "success",
       });
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete bot';
       toast({
         title: "Error",
-        description: "Failed to delete bot",
+        description: message,
         type: "error",
       });
     }
