@@ -47,14 +47,13 @@ export function useAuth() {
         console.log('Reload failed, using current status:', reloadError);
       }
       
-      // Check if email is verified - but allow login with warning
+      // Check if email is verified - BLOCK login if not verified
       if (!result.user.emailVerified) {
-        console.log('User email not verified, but allowing login with warning');
-        // Don't sign out - allow login but return a warning
+        console.log('User email not verified, blocking login');
+        await signOut(auth);
         return { 
-          success: true, 
-          user: result.user, 
-          warning: 'Your email is not verified. Please check your inbox and click the verification link to access all features.' 
+          success: false, 
+          error: new Error('Please verify your email before signing in. Check your inbox for a verification link.') 
         };
       }
       

@@ -11,30 +11,18 @@ export default function LoginPageComponent() {
   const [remember, setRemember] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [warning, setWarning] = useState('');
-  const [showVerificationResend, setShowVerificationResend] = useState(false);
-  const { signIn, signInWithGoogle, resendVerificationEmail } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-    setWarning('');
-    setShowVerificationResend(false);
     
     try {
       const result = await signIn(email, password);
       if (result.success) {
-        // Check if there's a warning about email verification
-        if (result.warning) {
-          setWarning(result.warning);
-          setShowVerificationResend(true);
-          // Don't redirect immediately - let user see the warning and resend button
-          // They can click resend or manually navigate to dashboard
-        } else {
-          router.push('/');
-        }
+        router.push('/');
       } else {
         const errorMessage = result.error instanceof Error ? result.error.message : 'Login failed. Please try again.';
         setError(errorMessage);
@@ -43,21 +31,6 @@ export default function LoginPageComponent() {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleResendVerification = async () => {
-    try {
-      const result = await resendVerificationEmail();
-      if (result.success) {
-        setWarning('Verification email sent! Please check your inbox.');
-        setShowVerificationResend(false);
-      } else {
-        const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to send verification email';
-        setError(errorMessage);
-      }
-    } catch (error) {
-      setError('Failed to send verification email');
     }
   };
 
@@ -120,30 +93,6 @@ export default function LoginPageComponent() {
           {error && (
             <div className="p-3 rounded-lg bg-red-900/50 border border-red-700">
               <p className="text-red-300 text-sm">{error}</p>
-            </div>
-          )}
-
-          {warning && (
-            <div className="p-3 rounded-lg bg-yellow-900/50 border border-yellow-700">
-              <p className="text-yellow-300 text-sm">{warning}</p>
-              {showVerificationResend && (
-                <div className="mt-3 space-y-2">
-                  <button
-                    type="button"
-                    onClick={handleResendVerification}
-                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
-                  >
-                    Resend verification email
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => router.push('/')}
-                    className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
-                  >
-                    Continue to Dashboard
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
