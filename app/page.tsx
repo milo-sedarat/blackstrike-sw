@@ -12,9 +12,6 @@ import Widget from "@/components/dashboard/widget";
 import TradingBots from "@/components/dashboard/trading-bots";
 import MarketAlerts from "@/components/dashboard/market-alerts";
 import SecurityStatus from "@/components/dashboard/security-status";
-import RebelsRanking from "@/components/dashboard/rebels-ranking";
-import Notifications from "@/components/dashboard/notifications";
-import AIChatbot from "@/components/dashboard/ai-chatbot";
 import Stat from "@/components/dashboard/stat";
 import Chart from "@/components/dashboard/chart";
 import LightningIcon from "@/components/icons/lightning";
@@ -105,95 +102,40 @@ const securityStatuses = [
   }
 ];
 
-const rebelsRanking = [
-  {
-    id: 1,
-    name: "CryptoKing",
-    handle: "@cryptoking",
-    streak: "7 days",
-    points: 12450,
-    avatar: "/avatars/user_joyboy.png"
-  },
-  {
-    id: 2,
-    name: "DeFiQueen",
-    handle: "@defiqueen",
-    streak: "5 days",
-    points: 11890,
-    avatar: "/avatars/user_krimson.png"
-  },
-  {
-    id: 3,
-    name: "BlockchainBaron",
-    handle: "@blockchainbaron",
-    streak: "3 days",
-    points: 11230,
-    avatar: "/avatars/user_mati.png"
-  }
-];
 
-const initialNotifications = [
-  {
-    id: "1",
-    title: "Bot Started",
-    message: "BTC Grid Bot has started successfully",
-    timestamp: "2 min ago",
-    type: "success" as const,
-    read: false,
-    priority: "high" as const
-  },
-  {
-    id: "2",
-    title: "High Volatility",
-    message: "ETH price showing unusual volatility",
-    timestamp: "5 min ago",
-    type: "warning" as const,
-    read: false,
-    priority: "medium" as const
-  },
-  {
-    id: "3",
-    title: "New Feature",
-    message: "Advanced charting tools now available",
-    timestamp: "1 hour ago",
-    type: "info" as const,
-    read: true,
-    priority: "low" as const
-  }
-];
 
 const stats = [
   {
     label: "Total Portfolio",
     value: "$124,750.50",
-    change: "+$2,847.30",
-    changePercent: "+2.34%",
+    description: "+$2,847.30 (+2.34%)",
     icon: LightningIcon,
-    trend: "up"
+    intent: "positive" as const,
+    direction: "up" as const
   },
   {
     label: "Active Bots",
     value: "6",
-    change: "+2",
-    changePercent: "+50%",
+    description: "+2 (+50%)",
     icon: AtomIcon,
-    trend: "up"
+    intent: "positive" as const,
+    direction: "up" as const
   },
   {
     label: "24h Volume",
     value: "$847,230",
-    change: "+$12,450",
-    changePercent: "+1.49%",
+    description: "+$12,450 (+1.49%)",
     icon: BoomIcon,
-    trend: "up"
+    intent: "positive" as const,
+    direction: "up" as const
   },
   {
     label: "Win Rate",
     value: "68.4%",
-    change: "+2.1%",
-    changePercent: "+3.17%",
+    description: "+2.1% (+3.17%)",
     icon: BellIcon,
-    trend: "up"
+    intent: "positive" as const,
+    direction: "up" as const
   }
 ];
 
@@ -244,17 +186,9 @@ function Dashboard() {
           
           {/* Security Status */}
           <SecurityStatus statuses={securityStatuses} />
-          
-          {/* Rebels Ranking */}
-          <RebelsRanking rebels={rebelsRanking} />
-          
-          {/* Notifications */}
-          <Notifications initialNotifications={initialNotifications} />
         </div>
       </div>
 
-      {/* AI Chatbot - Fixed Position */}
-      <AIChatbot />
     </DashboardPageLayout>
   );
 }
