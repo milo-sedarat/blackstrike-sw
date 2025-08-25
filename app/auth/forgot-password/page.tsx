@@ -1,30 +1,32 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import ModernAuthForm from '@/components/ui/modern-auth-form';
 import Image from 'next/image';
 
 export default function ForgotPasswordPageComponent() {
-  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
   const { resetPassword } = useAuth();
-  const router = useRouter();
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleResetPassword = async (data: any) => {
     setIsSubmitting(true);
+    setError('');
     
     try {
-      const result = await resetPassword(email);
+      const result = await resetPassword(data.email);
       if (result.success) {
+        setEmail(data.email);
         setIsSuccess(true);
       } else {
-        console.error('Password reset failed:', result.error);
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to send reset email';
+        setError(errorMessage);
       }
     } catch (error) {
-      console.error('Password reset error:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -33,7 +35,7 @@ export default function ForgotPasswordPageComponent() {
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-black flex flex-col relative">
-        {/* Animated Background - Same as 404 page */}
+        {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
           <div className="absolute inset-0 opacity-20">
@@ -50,7 +52,7 @@ export default function ForgotPasswordPageComponent() {
           </div>
         </div>
 
-        {/* BlackStrike Logo - Top Left */}
+        {/* BlackStrike Logo */}
         <div className="absolute top-8 left-8 z-10">
           <Image
             src="/assets/blackstrike-logo.png"
@@ -61,25 +63,36 @@ export default function ForgotPasswordPageComponent() {
           />
         </div>
 
-        {/* Success Content - Centered */}
+        {/* Success Content */}
         <div className="flex flex-col items-center justify-center flex-1 px-4 relative z-10">
           <div className="w-full max-w-md space-y-8 text-center">
             <div className="space-y-4">
+              <div className="text-green-500 text-6xl">✓</div>
               <h1 className="text-2xl font-bold text-white">
                 Check your email
               </h1>
-              <p className="text-muted-foreground">
-                We've sent a password reset link to {email}
+              <p className="text-gray-300">
+                We've sent a password reset link to <strong>{email}</strong>
+              </p>
+              <p className="text-gray-400 text-sm">
+                Click the link in your email to reset your password and regain access to your account.
               </p>
             </div>
 
             <div className="space-y-4">
-              <a
-                href="/auth/login"
-                className="inline-block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              <button
+                onClick={() => window.location.href = '/auth/login'}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
-                Back to login
-              </a>
+                Back to Sign In
+              </button>
+              
+              <button
+                onClick={() => setIsSuccess(false)}
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg border border-gray-700 transition-colors"
+              >
+                Try another email
+              </button>
             </div>
           </div>
         </div>
@@ -89,7 +102,7 @@ export default function ForgotPasswordPageComponent() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
-      {/* Animated Background - Same as 404 page */}
+      {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
         <div className="absolute inset-0 opacity-20">
@@ -106,7 +119,7 @@ export default function ForgotPasswordPageComponent() {
         </div>
       </div>
 
-      {/* BlackStrike Logo - Top Left */}
+      {/* BlackStrike Logo */}
       <div className="absolute top-8 left-8 z-10">
         <Image
           src="/assets/blackstrike-logo.png"
@@ -117,52 +130,14 @@ export default function ForgotPasswordPageComponent() {
         />
       </div>
 
-      {/* Forgot Password Content - Centered */}
+      {/* Modern Auth Form */}
       <div className="flex flex-col items-center justify-center flex-1 px-4 relative z-10">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold text-white">
-              Reset password
-            </h1>
-            <p className="text-muted-foreground">
-              Enter your email to receive a reset link
-            </p>
-          </div>
-
-          <form onSubmit={handleResetPassword} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
-            >
-              {isSubmitting ? 'Sending...' : 'Send reset link'}
-            </button>
-          </form>
-
-          <div className="text-center">
-            <p className="text-gray-400">
-              Remember your password?{' '}
-              <a href="/auth/login" className="text-blue-500 hover:text-blue-400">
-                Sign in
-              </a>
-            </p>
-          </div>
-        </div>
+        <ModernAuthForm
+          type="forgot-password"
+          onSubmit={handleResetPassword}
+          error={error}
+          isLoading={isSubmitting}
+        />
       </div>
     </div>
   );
