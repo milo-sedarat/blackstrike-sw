@@ -21,35 +21,7 @@ import GearIcon from "@/components/icons/gear";
 import LockIcon from "@/components/icons/lock";
 import BoomIcon from "@/components/icons/boom";
 
-const tradingBots = [
-  {
-    id: 1,
-    name: "BTC Grid Bot",
-    strategy: "Grid Trading",
-    pnl: "+$1,247.50",
-    status: "active" as const,
-    avatar: "/bitcoin-concept.png",
-    performance: "+12.4%"
-  },
-  {
-    id: 2,
-    name: "ETH DCA Bot",
-    strategy: "Dollar Cost Average",
-    pnl: "+$892.30",
-    status: "active" as const,
-    avatar: "/ethereum-abstract.png",
-    performance: "+8.9%"
-  },
-  {
-    id: 3,
-    name: "SOL Momentum",
-    strategy: "Momentum Trading",
-    pnl: "+$634.80",
-    status: "paused" as const,
-    avatar: "/solana-blockchain.png",
-    performance: "+15.2%"
-  }
-];
+
 
 const marketAlerts = [
   {
@@ -147,7 +119,7 @@ function Dashboard() {
           {/* Trading Bots and Market Alerts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Trading Bots */}
-            <TradingBots bots={tradingBots} />
+            <TradingBots />
             
             {/* Market Alerts */}
             <MarketAlerts alerts={marketAlerts} />

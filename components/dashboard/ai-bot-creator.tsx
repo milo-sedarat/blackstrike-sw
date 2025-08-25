@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import CuteRobotIcon from "@/components/icons/cute-robot"
 import { Send, Zap, Bot, TrendingUp, DollarSign } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 
 interface BotConfig {
   name: string
@@ -35,6 +36,7 @@ interface AISuggestion {
 }
 
 export default function AIBotCreator() {
+  const { user } = useAuth()
   const [userInput, setUserInput] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([])
@@ -141,11 +143,19 @@ export default function AIBotCreator() {
     setIsCreating(true)
     
     try {
-      // Call the real API to create the bot
-      const response = await fetch('/api/hummingbot/bots', {
+      // Get user's Firebase token
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+      
+      const token = await user.getIdToken()
+      
+      // Call the real trading API to create the bot
+      const response = await fetch('/api/trading/bots', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(selectedConfig),
       })
@@ -153,15 +163,21 @@ export default function AIBotCreator() {
       if (response.ok) {
         const newBot = await response.json()
         console.log('Bot created successfully:', newBot)
+        
+        // Show success message
+        alert(`Bot "${newBot.name}" created successfully!`)
+        
         // Reset form
         setUserInput("")
         setSuggestions([])
         setSelectedConfig(null)
       } else {
-        throw new Error('Failed to create bot')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create bot')
       }
     } catch (error) {
       console.error('Error creating bot:', error)
+      alert(`Error creating bot: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsCreating(false)
     }
