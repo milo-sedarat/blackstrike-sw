@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { MobileHeader } from '@/components/dashboard/mobile-header';
 import { DashboardSidebar } from '@/components/dashboard/sidebar';
@@ -16,6 +17,7 @@ const mockData = mockDataJson as MockData;
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
   const isAuthPage = pathname?.startsWith('/auth');
   
   // Define valid routes that should show the dashboard layout
@@ -30,7 +32,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   ];
   
   const isValidRoute = pathname && validRoutes.includes(pathname);
-  const isPublicPage = isAuthPage || !isValidRoute;
+  const isPublicPage = isAuthPage || !isValidRoute || !user || loading;
 
   if (isPublicPage) {
     return <>{children}</>;
