@@ -45,7 +45,24 @@ export default function LoginPageComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col relative">
+      {/* Animated Background - Same as 404 page */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
+        <div className="absolute inset-0 opacity-20">
+          <picture className="w-full h-full grayscale opacity-50">
+            <Image
+              src="/assets/bot_greenprint.gif"
+              alt="Security Status"
+              fill
+              quality={90}
+              sizes="100vw"
+              className="object-cover"
+            />
+          </picture>
+        </div>
+      </div>
+
       {/* BlackStrike Logo - Top Left */}
       <div className="absolute top-8 left-8 z-10">
         <Image
@@ -58,7 +75,7 @@ export default function LoginPageComponent() {
       </div>
 
       {/* Login Content - Centered */}
-      <div className="flex flex-col items-center justify-center flex-1 px-4">
+      <div className="flex flex-col items-center justify-center flex-1 px-4 relative z-10">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-2xl font-bold text-white">
