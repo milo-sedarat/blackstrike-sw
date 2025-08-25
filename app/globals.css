@@ -68,6 +68,9 @@
   --animate-marquee-pulse: marquee-pulse 3s ease-in-out infinite;
 
   --animate-marquee-pulse: marquee-pulse 1s linear infinite;
+  
+  --animate-ripple: ripple 2s ease calc(var(--i, 0) * 0.2s) infinite;
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
 }
 
 :root {
@@ -88,8 +91,12 @@
   --accent-foreground: oklch(0.205 0 0);
   --border: oklch(0.922 0 0);
   --pop: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
+  
+  /* Animation variables */
+  --skeleton: oklch(0.97 0 0);
+  --btn-border: oklch(0.922 0 0);
 
   --success: oklch(0.7775 0.2447 144.9);
   --destructive: oklch(0.577 0.245 27.325);
@@ -133,6 +140,10 @@
   --pop: oklch(0.9851 0 0 / 2.5%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  
+  /* Animation variables for dark mode */
+  --skeleton: oklch(0.269 0 0);
+  --btn-border: oklch(0.269 0 0);
 
   --success: oklch(0.7775 0.2447 144.9);
   --warning: oklch(0.769 0.188 70.08);
@@ -240,4 +251,54 @@
 .group:hover .animate-marquee-up,
 .group:hover .animate-marquee-down {
   animation-play-state: paused;
+}
+
+/* Animation components */
+@layer components {
+  .g-button {
+    @apply rounded-[var(--radius)] border;
+    border-color: var(--btn-border)
+  }
+}
+
+/* Ripple and Orbit Animations */
+@keyframes ripple {
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1); 
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(0.9); 
+  }
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg);
+  }
+}
+
+.animate-ripple {
+  animation: ripple 2s ease calc(var(--i, 0) * 0.2s) infinite;
+}
+
+.animate-orbit {
+  animation: orbit calc(var(--duration) * 1s) linear infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
