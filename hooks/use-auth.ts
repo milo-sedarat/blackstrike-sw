@@ -174,6 +174,27 @@ export function useAuth() {
     }
   };
 
+  const changeDisplayName = async (firstName: string, lastName: string) => {
+    try {
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+
+      if (user.providerData.some(provider => provider.providerId === 'google.com')) {
+        throw new Error('Cannot change name for Google accounts. Please detach from Google first.');
+      }
+
+      // Update profile with new display name
+      await updateProfile(user, {
+        displayName: `${firstName} ${lastName}`
+      });
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  };
+
   return {
     user,
     loading,
@@ -185,5 +206,6 @@ export function useAuth() {
     changeEmail,
     changePassword,
     detachGoogleAccount,
+    changeDisplayName,
   };
 } 

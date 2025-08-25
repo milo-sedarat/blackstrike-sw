@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/use-auth"
 import Image from "next/image"
 
 export default function SettingsPage() {
-  const { user, logout, detachGoogleAccount, changeEmail, changePassword } = useAuth();
+  const { user, logout, detachGoogleAccount, changeEmail, changePassword, changeDisplayName } = useAuth();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -84,15 +84,26 @@ export default function SettingsPage() {
   };
 
   const handleSaveName = async () => {
+    if (!editFirstName.trim() || !editLastName.trim()) {
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // TODO: Implement name update functionality
-      setTimeout(() => {
-        setIsSaving(false);
+      const result = await changeDisplayName(editFirstName.trim(), editLastName.trim());
+      
+      if (result.success) {
         setIsEditingName(false);
-      }, 1000);
+        // Refresh the page to show updated user state
+        window.location.reload();
+      } else {
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to update name';
+        console.error('Save name error:', errorMessage);
+        // You could add a toast notification here to show the error
+      }
     } catch (error) {
       console.error('Save name error:', error);
+    } finally {
       setIsSaving(false);
     }
   };
