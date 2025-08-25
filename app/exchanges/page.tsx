@@ -6,6 +6,11 @@ import { Switch } from "@/components/ui/switch"
 import ProcessorIcon from "@/components/icons/proccesor"
 import GearIcon from "@/components/icons/gear"
 import Image from "next/image"
+import { useState } from "react"
+import { useAuth } from "@/hooks/use-auth"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 // Section 1: CENTRALIZED EXCHANGES (CLOB CEX)
 const centralizedExchanges = [
@@ -230,7 +235,129 @@ const exchangeStats = [
   },
 ]
 
+// Connection Dialog Component
+function ConnectionDialog({ 
+  exchange, 
+  isOpen, 
+  onClose, 
+  onConnect 
+}: { 
+  exchange: any; 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onConnect: (data: any) => void; 
+}) {
+  const [formData, setFormData] = useState({
+    apiKey: '',
+    apiSecret: '',
+    passphrase: '',
+    sandbox: false
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onConnect({ ...formData, name: exchange.name });
+    setFormData({ apiKey: '', apiSecret: '', passphrase: '', sandbox: false });
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Connect to {exchange.name}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="apiKey">API Key</Label>
+            <Input
+              id="apiKey"
+              type="text"
+              value={formData.apiKey}
+              onChange={(e) => setFormData(prev => ({ ...prev, apiKey: e.target.value }))}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="apiSecret">API Secret</Label>
+            <Input
+              id="apiSecret"
+              type="password"
+              value={formData.apiSecret}
+              onChange={(e) => setFormData(prev => ({ ...prev, apiSecret: e.target.value }))}
+              required
+            />
+          </div>
+          {exchange.name === 'Coinbase Advanced' && (
+            <div>
+              <Label htmlFor="passphrase">Passphrase</Label>
+              <Input
+                id="passphrase"
+                type="text"
+                value={formData.passphrase}
+                onChange={(e) => setFormData(prev => ({ ...prev, passphrase: e.target.value }))}
+                required
+              />
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="sandbox"
+              checked={formData.sandbox}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, sandbox: checked }))}
+            />
+            <Label htmlFor="sandbox">Use Sandbox/Testnet</Label>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              Connect Exchange
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function ExchangesPage() {
+  const { user } = useAuth();
+  const [connectionDialog, setConnectionDialog] = useState<{
+    isOpen: boolean;
+    exchange: any;
+  }>({ isOpen: false, exchange: null });
+
+  const handleConnectExchange = (exchange: any) => {
+    setConnectionDialog({ isOpen: true, exchange });
+  };
+
+  const handleConnect = async (connectionData: any) => {
+    if (!user) return;
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/hummingbot/exchanges', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(connectionData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to connect exchange');
+      }
+
+      // Show success message or update UI
+      console.log('Exchange connected successfully');
+    } catch (error) {
+      console.error('Error connecting exchange:', error);
+      // Show error message
+    }
+  };
   return (
     <DashboardPageLayout
       header={{
@@ -303,7 +430,12 @@ export default function ExchangesPage() {
                   ))}
                 </div>
 
-                <Button className="w-full">Connect Exchange</Button>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handleConnectExchange(exchange)}
+                >
+                  Connect Exchange
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -361,7 +493,12 @@ export default function ExchangesPage() {
                   ))}
                 </div>
 
-                <Button className="w-full">Connect DEX</Button>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handleConnectExchange(exchange)}
+                >
+                  Connect DEX
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -411,15 +548,20 @@ export default function ExchangesPage() {
 
                 <p className="text-sm text-muted-foreground mb-4">{exchange.description}</p>
 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {exchange.features.map((feature) => (
-                    <Badge key={feature} variant="secondary" className="text-xs">
-                      {feature}
-                    </Badge>
-                  ))}
-                </div>
+                                  <div className="flex flex-wrap gap-2 mb-4">
+                    {exchange.features.map((feature) => (
+                      <Badge key={feature} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
 
-                <Button className="w-full">Connect DEX</Button>
+                  <Button 
+                    className="w-full" 
+                    onClick={() => handleConnectExchange(exchange)}
+                  >
+                    Connect DEX
+                  </Button>
               </CardContent>
             </Card>
           ))}
@@ -472,12 +614,27 @@ export default function ExchangesPage() {
                   ))}
                 </div>
 
-                <Button className="w-full">Connect Aggregator</Button>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handleConnectExchange(exchange)}
+                >
+                  Connect Aggregator
+                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
+
+      {/* Connection Dialog */}
+      {connectionDialog.exchange && (
+        <ConnectionDialog
+          exchange={connectionDialog.exchange}
+          isOpen={connectionDialog.isOpen}
+          onClose={() => setConnectionDialog({ isOpen: false, exchange: null })}
+          onConnect={handleConnect}
+        />
+      )}
     </DashboardPageLayout>
   )
 }

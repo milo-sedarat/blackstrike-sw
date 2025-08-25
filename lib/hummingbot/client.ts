@@ -143,6 +143,10 @@ export class HummingbotClient extends EventEmitter {
     return this.request('/exchanges');
   }
 
+  async getExchange(exchangeId: string): Promise<ExchangeConfig> {
+    return this.request(`/exchanges/${exchangeId}`);
+  }
+
   async updateExchange(exchangeId: string, updates: Partial<ExchangeConfig>): Promise<ExchangeConfig> {
     return this.request(`/exchanges/${exchangeId}`, {
       method: 'PUT',
