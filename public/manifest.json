@@ -1,0 +1,27 @@
+{
+  "name": "BlackStrike - Advanced Crypto Trading Bot Platform",
+  "short_name": "BlackStrike",
+  "description": "Advanced crypto trading bot platform. Automate your trading strategies with AI-powered bots.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/blackstrike-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/blackstrike-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"],
+  "lang": "en-US",
+  "dir": "ltr"
+} 

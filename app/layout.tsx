@@ -20,9 +20,46 @@ const isV0 = process.env["VERCEL_URL"]?.includes("vusercontent.net") ?? false
 export const metadata: Metadata = {
   title: {
     template: "%s – BlackStrike",
-    default: "BlackStrike",
+    default: "BlackStrike - Advanced Crypto Trading Bot Platform",
   },
   description: "Advanced crypto trading bot platform. Automate your trading strategies with AI-powered bots.",
+  keywords: ["crypto trading", "trading bots", "automated trading", "cryptocurrency", "trading platform"],
+  authors: [{ name: "BlackStrike" }],
+  creator: "BlackStrike",
+  publisher: "BlackStrike",
+  robots: "index, follow",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://app.blackstrike.ai",
+    title: "BlackStrike - Advanced Crypto Trading Bot Platform",
+    description: "Advanced crypto trading bot platform. Automate your trading strategies with AI-powered bots.",
+    siteName: "BlackStrike",
+    images: [
+      {
+        url: "/assets/blackstrike-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "BlackStrike Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BlackStrike - Advanced Crypto Trading Bot Platform",
+    description: "Advanced crypto trading bot platform. Automate your trading strategies with AI-powered bots.",
+    images: ["/assets/blackstrike-logo.png"],
+  },
+  icons: {
+    icon: [
+      { url: "/assets/blackstrike-logo.png", sizes: "32x32", type: "image/png" },
+      { url: "/assets/blackstrike-logo.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/assets/blackstrike-logo.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/manifest.json",
 }
 
 export default function RootLayout({

@@ -17,8 +17,9 @@ const mockData = mockDataJson as MockData;
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
+  const is404Page = pathname === '/404' || pathname === '/not-found' || pathname === '/login' || pathname === '/signup';
 
-  if (isAuthPage) {
+  if (isAuthPage || is404Page) {
     return <>{children}</>;
   }
 
