@@ -30,8 +30,8 @@ export default function LoginPageComponent() {
         if (result.warning) {
           setWarning(result.warning);
           setShowVerificationResend(true);
-          // Still redirect to dashboard but show warning
-          router.push('/');
+          // Don't redirect immediately - let user see the warning and resend button
+          // They can click resend or manually navigate to dashboard
         } else {
           router.push('/');
         }
@@ -127,13 +127,22 @@ export default function LoginPageComponent() {
             <div className="p-3 rounded-lg bg-yellow-900/50 border border-yellow-700">
               <p className="text-yellow-300 text-sm">{warning}</p>
               {showVerificationResend && (
-                <button
-                  type="button"
-                  onClick={handleResendVerification}
-                  className="mt-2 text-yellow-400 hover:text-yellow-300 text-sm underline"
-                >
-                  Resend verification email
-                </button>
+                <div className="mt-3 space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                  >
+                    Resend verification email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/')}
+                    className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                  >
+                    Continue to Dashboard
+                  </button>
+                </div>
               )}
             </div>
           )}
