@@ -20,7 +20,7 @@ interface Message {
 }
 
 export default function AIChatbot() {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import TradingBots from "@/components/dashboard/trading-bots";
 import MarketAlerts from "@/components/dashboard/market-alerts";
+import AIChatbot from "@/components/dashboard/ai-chatbot";
 import Stat from "@/components/dashboard/stat";
 import Chart from "@/components/dashboard/chart";
 import LightningIcon from "@/components/icons/lightning";
@@ -138,13 +139,24 @@ function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Trading Bots and Market Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Trading Bots */}
-        <TradingBots bots={tradingBots} />
-        
-        {/* Market Alerts */}
-        <MarketAlerts alerts={marketAlerts} />
+      {/* Main Content and AI Assistant */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Trading Bots and Market Alerts */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Trading Bots and Market Alerts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Trading Bots */}
+            <TradingBots bots={tradingBots} />
+            
+            {/* Market Alerts */}
+            <MarketAlerts alerts={marketAlerts} />
+          </div>
+        </div>
+
+        {/* Right Column - AI Assistant */}
+        <div className="lg:col-span-1">
+          <AIChatbot />
+        </div>
       </div>
 
     </DashboardPageLayout>
