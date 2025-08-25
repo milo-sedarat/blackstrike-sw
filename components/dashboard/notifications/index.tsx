@@ -9,15 +9,9 @@ import NotificationItem from "./notification-item";
 import type { Notification } from "@/types/dashboard";
 import { AnimatePresence, motion } from "framer-motion";
 
-interface NotificationsProps {
-  initialNotifications: Notification[];
-}
-
-export default function Notifications({
-  initialNotifications,
-}: NotificationsProps) {
+export default function Notifications() {
   const [notifications, setNotifications] =
-    useState<Notification[]>(initialNotifications);
+    useState<Notification[]>([]);
   const [showAll, setShowAll] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;

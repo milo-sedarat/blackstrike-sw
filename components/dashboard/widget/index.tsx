@@ -7,10 +7,6 @@ import TVNoise from "@/components/ui/tv-noise";
 import type { WidgetData } from "@/types/dashboard";
 import Image from "next/image";
 
-interface WidgetProps {
-  widgetData: WidgetData;
-}
-
 interface UserLocation {
   city: string;
   region: string;
@@ -20,7 +16,7 @@ interface UserLocation {
   weather?: string;
 }
 
-export default function Widget({ widgetData }: WidgetProps) {
+export default function Widget() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [is24Hour, setIs24Hour] = useState(false);
@@ -38,19 +34,19 @@ export default function Widget({ widgetData }: WidgetProps) {
           region: data.region || '',
           country: data.country_name || 'Unknown',
           timezone: data.timezone || 'UTC',
-          temperature: widgetData.temperature, // Keep existing temperature for now
-          weather: widgetData.weather // Keep existing weather for now
+          temperature: '72°F',
+          weather: 'Clear'
         });
       } catch (error) {
         console.error('Failed to get user location:', error);
-        // Fallback to mock data
+        // Fallback to default data
         setUserLocation({
           city: 'Unknown',
           region: '',
           country: 'Unknown',
           timezone: 'UTC',
-          temperature: widgetData.temperature,
-          weather: widgetData.weather
+          temperature: '72°F',
+          weather: 'Clear'
         });
       } finally {
         setIsLoading(false);
@@ -58,7 +54,7 @@ export default function Widget({ widgetData }: WidgetProps) {
     };
 
     getUserLocation();
-  }, [widgetData.temperature, widgetData.weather]);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -97,7 +93,7 @@ export default function Widget({ widgetData }: WidgetProps) {
 
   // Get timezone offset for display
   const getTimezoneDisplay = () => {
-    if (!userLocation) return widgetData.timezone;
+    if (!userLocation) return 'UTC';
     
     const offset = new Date().getTimezoneOffset();
     const hours = Math.abs(Math.floor(offset / 60));
@@ -109,7 +105,7 @@ export default function Widget({ widgetData }: WidgetProps) {
 
   // Get location display
   const getLocationDisplay = () => {
-    if (!userLocation) return widgetData.location;
+    if (!userLocation) return 'Unknown Location';
     
     if (userLocation.region && userLocation.region !== userLocation.city) {
       return `${userLocation.city}, ${userLocation.region}`;
@@ -139,7 +135,7 @@ export default function Widget({ widgetData }: WidgetProps) {
 
         <div className="flex justify-between items-center">
           <span className="opacity-50">
-            {isLoading ? 'Loading...' : (userLocation?.temperature || widgetData.temperature)}
+            {isLoading ? 'Loading...' : (userLocation?.temperature || '72°F')}
           </span>
           <span>
             {isLoading ? 'Loading...' : getLocationDisplay()}

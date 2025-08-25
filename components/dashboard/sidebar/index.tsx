@@ -103,7 +103,7 @@ export function DashboardSidebar({ className, ...props }: React.ComponentProps<t
   const displayName = user?.displayName || '';
   const firstName = displayName.split(' ')[0] || 'User';
   const userEmail = user?.email || '';
-  const photoURL = user?.photoURL || '/avatars/user_krimson.png';
+  const photoURL = user?.photoURL || '/placeholder-user.jpg';
 
   return (
     <Sidebar {...props} className={cn("py-sides", className)}>

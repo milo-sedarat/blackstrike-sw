@@ -9,10 +9,6 @@ import type { Notification } from "@/types/dashboard";
 import { SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useIsV0 } from "@/lib/v0-context";
 
-interface MobileNotificationsProps {
-  initialNotifications: Notification[];
-}
-
 interface SwipeableWrapperProps {
   children: React.ReactNode;
   onDelete: () => void;
@@ -49,11 +45,9 @@ function SwipeableWrapper({ children, onDelete }: SwipeableWrapperProps) {
   );
 }
 
-export default function MobileNotifications({
-  initialNotifications,
-}: MobileNotificationsProps) {
+export default function MobileNotifications() {
   const [notifications, setNotifications] =
-    useState<Notification[]>(initialNotifications);
+    useState<Notification[]>([]);
 
   const isV0 = useIsV0();
 

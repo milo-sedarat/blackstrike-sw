@@ -10,10 +10,7 @@ import Notifications from '@/components/dashboard/notifications';
 import { MobileChat } from '@/components/chat/mobile-chat';
 import Chat from '@/components/chat';
 import AIChatbot from '@/components/dashboard/ai-chatbot';
-import mockDataJson from '@/mock.json';
-import type { MockData } from '@/types/dashboard';
 
-const mockData = mockDataJson as MockData;
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -41,7 +38,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       {/* Mobile Header - only visible on mobile */}
-      <MobileHeader mockData={mockData} />
+      <MobileHeader />
 
       {/* Desktop Layout */}
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides">
@@ -51,9 +48,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         <div className="col-span-1 lg:col-span-7">{children}</div>
         <div className="col-span-3 hidden lg:block">
           <div className="space-y-gap py-sides min-h-screen max-h-screen sticky top-0 overflow-clip">
-            <Widget widgetData={mockData.widgetData} />
+            <Widget />
             <AIChatbot />
-            <Notifications initialNotifications={mockData.notifications} />
+            <Notifications />
             <Chat />
           </div>
         </div>
