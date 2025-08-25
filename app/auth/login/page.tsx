@@ -11,18 +11,30 @@ export default function LoginPageComponent() {
   const [remember, setRemember] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const { signIn, signInWithGoogle } = useAuth();
+  const [warning, setWarning] = useState('');
+  const [showVerificationResend, setShowVerificationResend] = useState(false);
+  const { signIn, signInWithGoogle, resendVerificationEmail } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
+    setWarning('');
+    setShowVerificationResend(false);
     
     try {
       const result = await signIn(email, password);
       if (result.success) {
-        router.push('/');
+        // Check if there's a warning about email verification
+        if (result.warning) {
+          setWarning(result.warning);
+          setShowVerificationResend(true);
+          // Still redirect to dashboard but show warning
+          router.push('/');
+        } else {
+          router.push('/');
+        }
       } else {
         const errorMessage = result.error instanceof Error ? result.error.message : 'Login failed. Please try again.';
         setError(errorMessage);
@@ -31,6 +43,21 @@ export default function LoginPageComponent() {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      const result = await resendVerificationEmail();
+      if (result.success) {
+        setWarning('Verification email sent! Please check your inbox.');
+        setShowVerificationResend(false);
+      } else {
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to send verification email';
+        setError(errorMessage);
+      }
+    } catch (error) {
+      setError('Failed to send verification email');
     }
   };
 
@@ -93,6 +120,21 @@ export default function LoginPageComponent() {
           {error && (
             <div className="p-3 rounded-lg bg-red-900/50 border border-red-700">
               <p className="text-red-300 text-sm">{error}</p>
+            </div>
+          )}
+
+          {warning && (
+            <div className="p-3 rounded-lg bg-yellow-900/50 border border-yellow-700">
+              <p className="text-yellow-300 text-sm">{warning}</p>
+              {showVerificationResend && (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  className="mt-2 text-yellow-400 hover:text-yellow-300 text-sm underline"
+                >
+                  Resend verification email
+                </button>
+              )}
             </div>
           )}
 

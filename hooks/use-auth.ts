@@ -47,17 +47,34 @@ export function useAuth() {
         console.log('Reload failed, using current status:', reloadError);
       }
       
-      // Check if email is verified - only for first-time users
+      // Check if email is verified - but allow login with warning
       if (!result.user.emailVerified) {
-        console.log('User email not verified, signing out');
-        await signOut(auth);
-        return { success: false, error: new Error('Please verify your email before signing in. Check your inbox for a verification link.') };
+        console.log('User email not verified, but allowing login with warning');
+        // Don't sign out - allow login but return a warning
+        return { 
+          success: true, 
+          user: result.user, 
+          warning: 'Your email is not verified. Please check your inbox and click the verification link to access all features.' 
+        };
       }
       
       console.log('User email verified, allowing login');
       return { success: true, user: result.user };
     } catch (error) {
       console.log('Sign in error:', error);
+      return { success: false, error };
+    }
+  };
+
+  const resendVerificationEmail = async () => {
+    try {
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+      
+      await sendEmailVerification(user);
+      return { success: true };
+    } catch (error) {
       return { success: false, error };
     }
   };
@@ -222,5 +239,6 @@ export function useAuth() {
     changePassword,
     detachGoogleAccount,
     changeDisplayName,
+    resendVerificationEmail,
   };
 } 
