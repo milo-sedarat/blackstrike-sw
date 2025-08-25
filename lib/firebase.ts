@@ -11,6 +11,15 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Debug Firebase config (only in development)
+if (process.env.NODE_ENV === 'development') {
+  console.log('Firebase Config:', {
+    authDomain: firebaseConfig.authDomain,
+    projectId: firebaseConfig.projectId,
+    apiKey: firebaseConfig.apiKey ? '***' : 'MISSING'
+  });
+}
+
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
