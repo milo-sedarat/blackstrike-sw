@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import DashboardPageLayout from "@/components/dashboard/layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,14 +16,16 @@ import CuteRobotIcon from "@/components/icons/cute-robot"
 import GearIcon from "@/components/icons/gear"
 import ProcessorIcon from "@/components/icons/proccesor"
 import Image from "next/image"
-import { useHummingbot } from "@/hooks/use-hummingbot"
-import { BotStrategy } from "@/lib/hummingbot/client"
+import { useAuth } from "@/hooks/use-auth"
 
 
 
 export default function MyBotsPage() {
-  const { bots, loading, error, createBot, startBot, stopBot, deleteBot } = useHummingbot();
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [bots, setBots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBotData, setNewBotData] = useState({
     name: '',
@@ -34,10 +36,38 @@ export default function MyBotsPage() {
     status: 'stopped' as const,
   });
 
+  // Fetch bots on component mount
+  useEffect(() => {
+    fetchBots();
+  }, []);
+
+  const fetchBots = async () => {
+    try {
+      setLoading(true);
+      const token = await user?.getIdToken();
+      const response = await fetch('/api/trading/bots', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch bots');
+      }
+      
+      const data = await response.json();
+      setBots(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch bots');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Calculate stats from real bot data
   const totalBots = bots.length;
-  const activeBots = bots.filter(bot => bot.status === 'running').length;
-  const totalProfit = bots.reduce((sum, bot) => sum + (bot.performance?.totalPnL || 0), 0);
+  const activeBots = bots.filter((bot: any) => bot.status === 'running').length;
+  const totalProfit = bots.reduce((sum: number, bot: any) => sum + (bot.performance?.totalPnL || 0), 0);
 
   const botStats = [
     {
@@ -62,24 +92,49 @@ export default function MyBotsPage() {
 
   const handleCreateBot = async () => {
     try {
-      await createBot(newBotData);
+      const token = await user?.getIdToken();
+      const response = await fetch('/api/trading/bots', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newBotData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create bot');
+      }
+      
       setIsCreateDialogOpen(false);
       setNewBotData({ name: '', strategy: '', exchange: '', tradingPair: '', config: {}, status: 'stopped' as const });
       toast({ title: 'Bot created successfully', type: 'success' });
+      fetchBots(); // Refresh the list
     } catch (err) {
       toast({ title: 'Failed to create bot', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' });
     }
   };
 
-  const handleToggleBot = async (bot: BotStrategy) => {
+  const handleToggleBot = async (bot: any) => {
     try {
-      if (bot.status === 'running') {
-        await stopBot(bot.id);
-        toast({ title: 'Bot stopped', type: 'success' });
-      } else {
-        await startBot(bot.id);
-        toast({ title: 'Bot started', type: 'success' });
+      const token = await user?.getIdToken();
+      const action = bot.status === 'running' ? 'stop' : 'start';
+      
+      const response = await fetch(`/api/trading/bots/${bot.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to toggle bot');
       }
+      
+      toast({ title: `Bot ${action}ed`, type: 'success' });
+      fetchBots(); // Refresh the list
     } catch (err) {
       toast({ title: 'Failed to toggle bot', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' });
     }
@@ -87,8 +142,20 @@ export default function MyBotsPage() {
 
   const handleDeleteBot = async (botId: string) => {
     try {
-      await deleteBot(botId);
+      const token = await user?.getIdToken();
+      const response = await fetch(`/api/trading/bots/${botId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete bot');
+      }
+      
       toast({ title: 'Bot deleted', type: 'success' });
+      fetchBots(); // Refresh the list
     } catch (err) {
       toast({ title: 'Failed to delete bot', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' });
     }

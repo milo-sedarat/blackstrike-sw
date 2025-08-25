@@ -23,56 +23,30 @@ import {
   AreaChart, // Using AreaChart instead of ComposedChart to avoid mixing issues
 } from "recharts"
 
-const profitLossData = [
-  { date: "Jan", profit: 2400, loss: 400, net: 2000 },
-  { date: "Feb", profit: 1398, loss: 600, net: 798 },
-  { date: "Mar", profit: 9800, loss: 1200, net: 8600 },
-  { date: "Apr", profit: 3908, loss: 800, net: 3108 },
-  { date: "May", profit: 4800, loss: 300, net: 4500 },
-  { date: "Jun", profit: 3800, loss: 700, net: 3100 },
-  { date: "Jul", profit: 4300, loss: 500, net: 3800 },
-]
+const profitLossData: any[] = [];
 
-const tradingVolumeData = [
-  { date: "01/07", volume: 45000, trades: 23 },
-  { date: "02/07", volume: 52000, trades: 31 },
-  { date: "03/07", volume: 38000, trades: 18 },
-  { date: "04/07", volume: 67000, trades: 42 },
-  { date: "05/07", volume: 41000, trades: 25 },
-  { date: "06/07", volume: 58000, trades: 35 },
-  { date: "07/07", volume: 73000, trades: 48 },
-]
+const tradingVolumeData: any[] = [];
 
-const winRateData = [
-  { name: "Wins", value: 68, color: "#10b981" },
-  { name: "Losses", value: 32, color: "#ef4444" },
-]
+const winRateData: any[] = [];
 
-const botPerformanceData = [
-  { bot: "BTC Grid", profit: 1247, trades: 247, winRate: 68 },
-  { bot: "ETH DCA", profit: 892, trades: 156, winRate: 72 },
-  { bot: "SOL Momentum", profit: 634, trades: 89, winRate: 75 },
-  { bot: "AVAX Arbitrage", profit: 423, trades: 34, winRate: 82 },
-  { bot: "ADA Swing", profit: -156, trades: 23, winRate: 43 },
-  { bot: "MATIC Scalper", profit: 289, trades: 412, winRate: 64 },
-]
+const botPerformanceData: any[] = [];
 
 const analyticsStats = [
   {
     label: "TOTAL PROFIT",
-    value: "+$3,329.50",
+    value: "$0",
     description: "ALL TIME EARNINGS",
     icon: GearIcon,
   },
   {
     label: "WIN RATE",
-    value: "68.2%",
+    value: "0%",
     description: "SUCCESSFUL TRADES",
     icon: BoomIcon,
   },
   {
     label: "TOTAL TRADES",
-    value: "961",
+    value: "0",
     description: "EXECUTED ORDERS",
     icon: ProcessorIcon,
   },
