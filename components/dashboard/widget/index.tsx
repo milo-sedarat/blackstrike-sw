@@ -11,8 +11,54 @@ interface WidgetProps {
   widgetData: WidgetData;
 }
 
+interface UserLocation {
+  city: string;
+  region: string;
+  country: string;
+  timezone: string;
+  temperature?: string;
+  weather?: string;
+}
+
 export default function Widget({ widgetData }: WidgetProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [is24Hour, setIs24Hour] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Get user location from IP address
+  useEffect(() => {
+    const getUserLocation = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        
+        setUserLocation({
+          city: data.city || 'Unknown',
+          region: data.region || '',
+          country: data.country_name || 'Unknown',
+          timezone: data.timezone || 'UTC',
+          temperature: widgetData.temperature, // Keep existing temperature for now
+          weather: widgetData.weather // Keep existing weather for now
+        });
+      } catch (error) {
+        console.error('Failed to get user location:', error);
+        // Fallback to mock data
+        setUserLocation({
+          city: 'Unknown',
+          region: '',
+          country: 'Unknown',
+          timezone: 'UTC',
+          temperature: widgetData.temperature,
+          weather: widgetData.weather
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getUserLocation();
+  }, [widgetData.temperature, widgetData.weather]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,7 +70,7 @@ export default function Widget({ widgetData }: WidgetProps) {
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
-      hour12: true,
+      hour12: !is24Hour,
       hour: "numeric",
       minute: "2-digit",
     });
@@ -42,10 +88,39 @@ export default function Widget({ widgetData }: WidgetProps) {
     return { dayOfWeek, restOfDate };
   };
 
+  const handleWidgetClick = () => {
+    setIs24Hour(!is24Hour);
+  };
+
   const dateInfo = formatDate(currentTime);
 
+  // Get timezone offset for display
+  const getTimezoneDisplay = () => {
+    if (!userLocation) return widgetData.timezone;
+    
+    const offset = new Date().getTimezoneOffset();
+    const hours = Math.abs(Math.floor(offset / 60));
+    const minutes = Math.abs(offset % 60);
+    const sign = offset <= 0 ? '+' : '-';
+    
+    return `UTC${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  // Get location display
+  const getLocationDisplay = () => {
+    if (!userLocation) return widgetData.location;
+    
+    if (userLocation.region && userLocation.region !== userLocation.city) {
+      return `${userLocation.city}, ${userLocation.region}`;
+    }
+    return `${userLocation.city}, ${userLocation.country}`;
+  };
+
   return (
-    <Card className="w-full aspect-[2] relative overflow-hidden">
+    <Card 
+      className="w-full aspect-[2] relative overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02]" 
+      onClick={handleWidgetClick}
+    >
       <TVNoise opacity={0.3} intensity={0.2} speed={40} />
       <CardContent className="bg-accent/30 flex-1 flex flex-col justify-between text-sm font-medium uppercase relative z-20">
         <div className="flex justify-between items-center">
@@ -56,14 +131,21 @@ export default function Widget({ widgetData }: WidgetProps) {
           <div className="text-5xl font-display" suppressHydrationWarning>
             {formatTime(currentTime)}
           </div>
+          {isLoading && (
+            <div className="text-xs opacity-50 mt-1">Loading location...</div>
+          )}
         </div>
 
         <div className="flex justify-between items-center">
-          <span className="opacity-50">{widgetData.temperature}</span>
-          <span>{widgetData.location}</span>
+          <span className="opacity-50">
+            {isLoading ? 'Loading...' : (userLocation?.temperature || widgetData.temperature)}
+          </span>
+          <span>
+            {isLoading ? 'Loading...' : getLocationDisplay()}
+          </span>
 
           <Badge variant="secondary" className="bg-accent">
-            {widgetData.timezone}
+            {isLoading ? 'Loading...' : getTimezoneDisplay()}
           </Badge>
         </div>
 
