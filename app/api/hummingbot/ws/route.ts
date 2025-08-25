@@ -5,6 +5,10 @@ import { db } from '@/lib/firebase-admin';
 // WebSocket endpoint for real-time bot monitoring
 export async function GET(request: NextRequest) {
   try {
+    if (!auth || !db) {
+      return NextResponse.json({ error: 'Service not available' }, { status: 503 });
+    }
+
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

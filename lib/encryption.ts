@@ -1,5 +1,10 @@
 import crypto from 'crypto';
 
+// Ensure this is only used on the server side
+if (typeof window !== 'undefined') {
+  throw new Error('encryption utilities should only be used on the server side');
+}
+
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'your-32-character-secret-key-here';
 const ALGORITHM = 'aes-256-cbc';
 

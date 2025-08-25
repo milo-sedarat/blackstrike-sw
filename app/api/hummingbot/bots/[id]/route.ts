@@ -4,6 +4,10 @@ import { db } from '@/lib/firebase-admin';
 import { createHummingbotClient } from '@/lib/hummingbot/client';
 
 async function getHummingbotConfig(userId: string) {
+  if (!db) {
+    throw new Error('Firebase not initialized');
+  }
+  
   const userDoc = await db.collection('users').doc(userId).get();
   const userData = userDoc.data();
 
@@ -25,6 +29,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (!auth || !db) {
+      return NextResponse.json({ error: 'Service not available' }, { status: 503 });
+    }
+
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -55,6 +63,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (!auth || !db) {
+      return NextResponse.json({ error: 'Service not available' }, { status: 503 });
+    }
+
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -92,6 +104,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (!auth || !db) {
+      return NextResponse.json({ error: 'Service not available' }, { status: 503 });
+    }
+
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
