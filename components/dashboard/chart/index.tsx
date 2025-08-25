@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { XAxis, YAxis, CartesianGrid, Area, AreaChart } from "recharts";
+import { XAxis, YAxis, CartesianGrid, Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
 
@@ -28,33 +28,33 @@ export default function DashboardChart() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="bg-accent rounded-lg p-3">
-          <AreaChart
-            width={800}
-            height={200}
-            data={emptyChartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-            <XAxis 
-              dataKey="date" 
-              stroke="#9CA3AF" 
-              fontSize={12}
-            />
-            <YAxis 
-              stroke="#9CA3AF" 
-              fontSize={12}
-              domain={[0, 100]}
-            />
-            <Area 
-              type="monotone" 
-              dataKey="value" 
-              stroke="#3B82F6" 
-              fill="#3B82F6" 
-              fillOpacity={0.1}
-              strokeWidth={2}
-            />
-          </AreaChart>
+        <div className="bg-accent rounded-lg p-3 w-full overflow-hidden">
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart
+              data={emptyChartData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+              <XAxis 
+                dataKey="date" 
+                stroke="#9CA3AF" 
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="#9CA3AF" 
+                fontSize={12}
+                domain={[0, 100]}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="value" 
+                stroke="#3B82F6" 
+                fill="#3B82F6" 
+                fillOpacity={0.1}
+                strokeWidth={2}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
         <div className="text-center mt-4 text-muted-foreground">
           <p className="text-sm">No portfolio data available</p>
