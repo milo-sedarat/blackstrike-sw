@@ -5,25 +5,40 @@ import DashboardPageLayout from "@/components/dashboard/layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-import CuteRobotIcon from "@/components/icons/cute-robot"
-import GearIcon from "@/components/icons/gear"
-import ProcessorIcon from "@/components/icons/proccesor"
-import Image from "next/image"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
+import { useToast } from "@/hooks/use-toast"
+import { Play, Square, Trash2, Plus, Settings, TrendingUp, TrendingDown } from "lucide-react"
 
+interface Bot {
+  id: string;
+  name: string;
+  strategy: string;
+  status: 'running' | 'stopped' | 'paused' | 'error';
+  exchange: string;
+  tradingPair: string;
+  investment: number;
+  currentValue: number;
+  totalPnL: number;
+  totalTrades: number;
+  winRate: number;
+  createdAt: Date;
+  performance: {
+    totalPnL: number;
+    totalVolume: number;
+    winRate: number;
+    totalTrades: number;
+  };
+}
 
-
-export default function MyBotsPage() {
+export default function BotsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [bots, setBots] = useState<any[]>([]);
+  const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -32,14 +47,14 @@ export default function MyBotsPage() {
     strategy: '',
     exchange: '',
     tradingPair: '',
-    config: {},
-    status: 'stopped' as const,
+    investment: '',
   });
 
-  // Fetch bots on component mount
   useEffect(() => {
-    fetchBots();
-  }, []);
+    if (user) {
+      fetchBots();
+    }
+  }, [user]);
 
   const fetchBots = async () => {
     try {
@@ -50,45 +65,24 @@ export default function MyBotsPage() {
           'Authorization': `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch bots');
       }
-      
+
       const data = await response.json();
       setBots(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch bots');
+      toast({
+        title: "Error",
+        description: "Failed to fetch bots",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
-
-  // Calculate stats from real bot data
-  const totalBots = bots.length;
-  const activeBots = bots.filter((bot: any) => bot.status === 'running').length;
-  const totalProfit = bots.reduce((sum: number, bot: any) => sum + (bot.performance?.totalPnL || 0), 0);
-
-  const botStats = [
-    {
-      label: "TOTAL BOTS",
-      value: totalBots.toString(),
-      description: "CREATED STRATEGIES",
-      icon: CuteRobotIcon,
-    },
-    {
-      label: "ACTIVE BOTS",
-      value: activeBots.toString(),
-      description: "CURRENTLY RUNNING",
-      icon: ProcessorIcon,
-    },
-    {
-      label: "TOTAL PROFIT",
-      value: `$${totalProfit.toFixed(2)}`,
-      description: "ALL TIME EARNINGS",
-      icon: GearIcon,
-    },
-  ];
 
   const handleCreateBot = async () => {
     try {
@@ -99,28 +93,45 @@ export default function MyBotsPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(newBotData),
+        body: JSON.stringify({
+          ...newBotData,
+          investment: parseFloat(newBotData.investment),
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to create bot');
       }
-      
+
+      const newBot = await response.json();
+      setBots(prev => [...prev, newBot]);
       setIsCreateDialogOpen(false);
-      setNewBotData({ name: '', strategy: '', exchange: '', tradingPair: '', config: {}, status: 'stopped' as const });
-      toast({ title: 'Bot created successfully', type: 'success' });
-      fetchBots(); // Refresh the list
+      setNewBotData({
+        name: '',
+        strategy: '',
+        exchange: '',
+        tradingPair: '',
+        investment: '',
+      });
+
+      toast({
+        title: "Success",
+        description: "Bot created successfully",
+        type: "success",
+      });
     } catch (err) {
-      toast({ title: 'Failed to create bot', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' });
+      toast({
+        title: "Error",
+        description: "Failed to create bot",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleToggleBot = async (bot: any) => {
+  const handleToggleBot = async (botId: string, action: 'start' | 'stop') => {
     try {
       const token = await user?.getIdToken();
-      const action = bot.status === 'running' ? 'stop' : 'start';
-      
-      const response = await fetch(`/api/trading/bots/${bot.id}`, {
+      const response = await fetch(`/api/trading/bots/${botId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -128,19 +139,34 @@ export default function MyBotsPage() {
         },
         body: JSON.stringify({ action }),
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to toggle bot');
+        throw new Error(`Failed to ${action} bot`);
       }
-      
-      toast({ title: `Bot ${action}ed`, type: 'success' });
-      fetchBots(); // Refresh the list
+
+      // Update local state
+      setBots(prev => prev.map(bot => 
+        bot.id === botId 
+          ? { ...bot, status: action === 'start' ? 'running' : 'stopped' }
+          : bot
+      ));
+
+      toast({
+        title: "Success",
+        description: `Bot ${action}ed successfully`,
+      });
     } catch (err) {
-      toast({ title: 'Failed to toggle bot', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' });
+      toast({
+        title: "Error",
+        description: `Failed to ${action} bot`,
+        variant: "destructive",
+      });
     }
   };
 
   const handleDeleteBot = async (botId: string) => {
+    if (!confirm('Are you sure you want to delete this bot?')) return;
+
     try {
       const token = await user?.getIdToken();
       const response = await fetch(`/api/trading/bots/${botId}`, {
@@ -149,25 +175,60 @@ export default function MyBotsPage() {
           'Authorization': `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete bot');
       }
-      
-      toast({ title: 'Bot deleted', type: 'success' });
-      fetchBots(); // Refresh the list
+
+      setBots(prev => prev.filter(bot => bot.id !== botId));
+      toast({
+        title: "Success",
+        description: "Bot deleted successfully",
+      });
     } catch (err) {
-      toast({ title: 'Failed to delete bot', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' });
+      toast({
+        title: "Error",
+        description: "Failed to delete bot",
+        variant: "destructive",
+      });
     }
   };
+
+  // Calculate stats
+  const totalBots = bots.length;
+  const activeBots = bots.filter(bot => bot.status === 'running').length;
+  const totalInvestment = bots.reduce((sum, bot) => sum + bot.investment, 0);
+  const totalPnL = bots.reduce((sum, bot) => sum + bot.totalPnL, 0);
+
+  const botStats = [
+    {
+      label: "TOTAL BOTS",
+      value: totalBots.toString(),
+      description: "CREATED",
+    },
+    {
+      label: "ACTIVE BOTS",
+      value: activeBots.toString(),
+      description: "RUNNING",
+    },
+    {
+      label: "TOTAL INVESTMENT",
+      value: `$${totalInvestment.toLocaleString()}`,
+      description: "ACROSS ALL BOTS",
+    },
+    {
+      label: "TOTAL P&L",
+      value: `$${totalPnL.toFixed(2)}`,
+      description: "ALL TIME",
+    },
+  ];
 
   if (loading) {
     return (
       <DashboardPageLayout
         header={{
-          title: "My Bots",
-          description: "Manage your trading strategies",
-          icon: CuteRobotIcon,
+          title: "Trading Bots",
+          description: "Manage your automated trading strategies",
         }}
       >
         <div className="flex items-center justify-center h-64">
@@ -180,9 +241,8 @@ export default function MyBotsPage() {
   return (
     <DashboardPageLayout
       header={{
-        title: "My Bots",
-        description: "Manage your trading strategies",
-        icon: CuteRobotIcon,
+        title: "Trading Bots",
+        description: "Manage your automated trading strategies",
       }}
     >
       {error && (
@@ -192,7 +252,7 @@ export default function MyBotsPage() {
       )}
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         {botStats.map((stat, index) => (
           <Card key={index}>
             <CardContent className="p-6">
@@ -202,177 +262,208 @@ export default function MyBotsPage() {
                   <p className="text-2xl font-display">{stat.value}</p>
                   <p className="text-xs text-muted-foreground uppercase">{stat.description}</p>
                 </div>
-                <stat.icon className="size-8 text-primary" />
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Create New Bot Button */}
-      <div className="mb-6">
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="lg" className="font-display">
-              <CuteRobotIcon className="mr-2 size-4" />
-              Create New Bot
+      {/* Create Bot Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogTrigger asChild>
+          <Button className="mb-6">
+            <Plus className="mr-2 size-4" />
+            Create New Bot
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create New Trading Bot</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Bot Name</Label>
+              <Input
+                id="name"
+                value={newBotData.name}
+                onChange={(e) => setNewBotData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="My DCA Bot"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="strategy">Strategy</Label>
+              <Select value={newBotData.strategy} onValueChange={(value) => setNewBotData(prev => ({ ...prev, strategy: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select strategy" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dca">Dollar Cost Averaging</SelectItem>
+                  <SelectItem value="grid">Grid Trading</SelectItem>
+                  <SelectItem value="arbitrage">Arbitrage</SelectItem>
+                  <SelectItem value="market_making">Market Making</SelectItem>
+                  <SelectItem value="momentum">Momentum Trading</SelectItem>
+                  <SelectItem value="scalping">Scalping</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exchange">Exchange</Label>
+              <Input
+                id="exchange"
+                value={newBotData.exchange}
+                onChange={(e) => setNewBotData(prev => ({ ...prev, exchange: e.target.value }))}
+                placeholder="binance"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="tradingPair">Trading Pair</Label>
+              <Input
+                id="tradingPair"
+                value={newBotData.tradingPair}
+                onChange={(e) => setNewBotData(prev => ({ ...prev, tradingPair: e.target.value }))}
+                placeholder="BTC/USDT"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="investment">Investment Amount ($)</Label>
+              <Input
+                id="investment"
+                type="number"
+                value={newBotData.investment}
+                onChange={(e) => setNewBotData(prev => ({ ...prev, investment: e.target.value }))}
+                placeholder="1000"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Trading Bot</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Bot Name</Label>
-                <Input
-                  id="name"
-                  value={newBotData.name}
-                  onChange={(e) => setNewBotData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="My Trading Bot"
-                />
-              </div>
-              <div>
-                <Label htmlFor="strategy">Strategy</Label>
-                <Select value={newBotData.strategy} onValueChange={(value) => setNewBotData(prev => ({ ...prev, strategy: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select strategy" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="grid_trading">Grid Trading</SelectItem>
-                    <SelectItem value="dca">Dollar Cost Average</SelectItem>
-                    <SelectItem value="momentum">Momentum Trading</SelectItem>
-                    <SelectItem value="arbitrage">Cross-Exchange Arbitrage</SelectItem>
-                    <SelectItem value="swing">Swing Trading</SelectItem>
-                    <SelectItem value="scalping">Scalping</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="exchange">Exchange</Label>
-                <Select value={newBotData.exchange} onValueChange={(value) => setNewBotData(prev => ({ ...prev, exchange: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select exchange" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="binance">Binance</SelectItem>
-                    <SelectItem value="coinbase">Coinbase</SelectItem>
-                    <SelectItem value="kraken">Kraken</SelectItem>
-                    <SelectItem value="kucoin">KuCoin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="tradingPair">Trading Pair</Label>
-                <Input
-                  id="tradingPair"
-                  value={newBotData.tradingPair}
-                  onChange={(e) => setNewBotData(prev => ({ ...prev, tradingPair: e.target.value }))}
-                  placeholder="BTC/USDT"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateBot} disabled={!newBotData.name || !newBotData.strategy || !newBotData.exchange || !newBotData.tradingPair}>
-                Create Bot
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+            <Button onClick={handleCreateBot}>
+              Create Bot
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      {/* Bots Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {bots.map((bot) => (
-          <Card key={bot.id} className="overflow-hidden">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="size-12 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
-                    <CuteRobotIcon className="size-6 text-primary" />
+      {/* Bots List */}
+      <div className="space-y-6">
+        {bots.length === 0 ? (
+          <div className="text-center py-12">
+            <Settings className="size-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">No trading bots</h3>
+            <p className="text-muted-foreground mb-4">Create your first bot to start automated trading</p>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="mr-2 size-4" />
+              Create Bot
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {bots.map((bot) => (
+              <Card key={bot.id} className="overflow-hidden">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="size-12 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+                        <Settings className="size-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-display">{bot.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{bot.strategy}</p>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={
+                        bot.status === 'running' ? 'default' : 
+                        bot.status === 'paused' ? 'secondary' : 
+                        bot.status === 'error' ? 'destructive' : 'outline'
+                      }
+                      className="text-xs"
+                    >
+                      {bot.status.toUpperCase()}
+                    </Badge>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg font-display">{bot.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{bot.strategy}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Bot Details */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase">Exchange</p>
+                      <p className="font-mono text-lg">{bot.exchange}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase">Pair</p>
+                      <p className="font-mono text-lg">{bot.tradingPair}</p>
+                    </div>
                   </div>
-                </div>
-                <Switch 
-                  checked={bot.status === "running"} 
-                  onCheckedChange={() => handleToggleBot(bot)}
-                  disabled={bot.status === "error"}
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Performance Metrics */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase">P&L</p>
-                  <p className={`font-mono text-lg ${(bot.performance?.totalPnL || 0) >= 0 ? "text-success" : "text-destructive"}`}>
-                    ${(bot.performance?.totalPnL || 0).toFixed(2)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {bot.performance?.winRate ? `${(bot.performance.winRate * 100).toFixed(1)}% win rate` : 'No trades yet'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase">Volume</p>
-                  <p className="font-mono text-lg">${(bot.performance?.totalVolume || 0).toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">Total volume</p>
-                </div>
-              </div>
 
-              {/* Bot Details */}
-              <div className="space-y-2 pt-2 border-t">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Pair:</span>
-                  <span className="font-mono">{bot.tradingPair}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Exchange:</span>
-                  <span>{bot.exchange}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Created:</span>
-                  <span>{new Date(bot.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
+                  {/* Performance */}
+                  <div className="space-y-2 pt-2 border-t">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Investment:</span>
+                      <span className="font-mono">${bot.investment.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Current Value:</span>
+                      <span className="font-mono">${bot.currentValue.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">P&L:</span>
+                      <span className={`font-mono flex items-center gap-1 ${bot.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {bot.totalPnL >= 0 ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
+                        ${bot.totalPnL.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Trades:</span>
+                      <span className="font-mono">{bot.totalTrades}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Win Rate:</span>
+                      <span className="font-mono">{(bot.winRate * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
 
-              {/* Status and Actions */}
-              <div className="flex items-center justify-between pt-2">
-                <Badge
-                  variant={bot.status === "running" ? "default" : bot.status === "stopped" ? "secondary" : "destructive"}
-                >
-                  {bot.status.toUpperCase()}
-                </Badge>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <GearIcon className="size-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDeleteBot(bot.id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-2">
+                    {bot.status === 'running' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleToggleBot(bot.id, 'stop')}
+                      >
+                        <Square className="mr-2 size-4" />
+                        Stop
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleToggleBot(bot.id, 'start')}
+                      >
+                        <Play className="mr-2 size-4" />
+                        Start
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleDeleteBot(bot.id)}
+                    >
+                      <Trash2 className="mr-2 size-4" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
-
-      {bots.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <CuteRobotIcon className="size-16 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">No bots yet</h3>
-          <p className="text-muted-foreground mb-4">Create your first trading bot to get started</p>
-        </div>
-      )}
     </DashboardPageLayout>
   )
 }
