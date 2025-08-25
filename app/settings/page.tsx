@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import GearIcon from "@/components/icons/gear"
 import LockIcon from "@/components/icons/lock"
@@ -20,6 +19,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDetaching, setIsDetaching] = useState(false);
   
   // Extract user information
   const userEmail = user?.email || '';
@@ -51,6 +51,21 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDetachGoogle = async () => {
+    setIsDetaching(true);
+    try {
+      // TODO: Implement Google account detachment
+      // This would require setting up a password for the account first
+      console.log('Detaching Google account...');
+      setTimeout(() => {
+        setIsDetaching(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Detach error:', error);
+      setIsDetaching(false);
+    }
+  };
+
   return (
     <DashboardPageLayout
       header={{
@@ -59,9 +74,9 @@ export default function SettingsPage() {
         icon: GearIcon,
       }}
     >
-      <div className="space-y-6">
+      <div className="w-full">
         <Tabs defaultValue="account" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="api">API Keys</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -69,7 +84,7 @@ export default function SettingsPage() {
           </TabsList>
 
           {/* Account Tab */}
-          <TabsContent value="account" className="space-y-6">
+          <TabsContent value="account" className="space-y-6 mt-0">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg font-display">Profile Information</CardTitle>
@@ -115,21 +130,6 @@ export default function SettingsPage() {
                       ✓ Email verified
                     </p>
                   )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="timezone">Timezone</Label>
-                  <Select defaultValue="utc">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="utc">UTC</SelectItem>
-                      <SelectItem value="est">EST</SelectItem>
-                      <SelectItem value="pst">PST</SelectItem>
-                      <SelectItem value="cet">CET</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 {/* Account Info */}
@@ -180,10 +180,15 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-display text-sm">Google Account</h3>
-                      <p className="text-xs text-muted-foreground">Manage your Google account settings</p>
+                      <p className="text-xs text-muted-foreground">Detach from Google and use email/password</p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Manage Google Account
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleDetachGoogle}
+                      disabled={isDetaching}
+                    >
+                      {isDetaching ? 'Detaching...' : 'Detach Google Account'}
                     </Button>
                   </div>
                 )}
@@ -192,7 +197,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           {/* API Keys Tab */}
-          <TabsContent value="api" className="space-y-6">
+          <TabsContent value="api" className="space-y-6 mt-0">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg font-display">API Key Management</CardTitle>
@@ -237,7 +242,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           {/* Notifications Tab */}
-          <TabsContent value="notifications" className="space-y-6">
+          <TabsContent value="notifications" className="space-y-6 mt-0">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg font-display">Notification Preferences</CardTitle>
@@ -278,7 +283,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           {/* Security Tab */}
-          <TabsContent value="security" className="space-y-6">
+          <TabsContent value="security" className="space-y-6 mt-0">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg font-display">Security Settings</CardTitle>
