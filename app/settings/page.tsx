@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import GearIcon from "@/components/icons/gear"
 import LockIcon from "@/components/icons/lock"
 import { useAuth } from "@/hooks/use-auth"
+import Image from "next/image"
 
 export default function SettingsPage() {
   const { user, logout, detachGoogleAccount, changeEmail, changePassword } = useAuth();
@@ -22,6 +23,14 @@ export default function SettingsPage() {
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   
+  // Edit states
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  
   // Detach Google modal states
   const [showDetachModal, setShowDetachModal] = useState(false);
   const [detachEmail, setDetachEmail] = useState('');
@@ -29,13 +38,6 @@ export default function SettingsPage() {
   const [detachConfirmPassword, setDetachConfirmPassword] = useState('');
   const [detachError, setDetachError] = useState('');
   const [detachSuccess, setDetachSuccess] = useState(false);
-  
-  // Change email modal states
-  const [showChangeEmailModal, setShowChangeEmailModal] = useState(false);
-  const [newEmail, setNewEmail] = useState('');
-  const [emailPassword, setEmailPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [emailSuccess, setEmailSuccess] = useState(false);
   
   // Change password modal states
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -50,7 +52,7 @@ export default function SettingsPage() {
   const displayName = user?.displayName || '';
   const firstName = displayName.split(' ')[0] || '';
   const lastName = displayName.split(' ').slice(1).join(' ') || '';
-  const photoURL = user?.photoURL || '';
+  const photoURL = user?.photoURL || '/avatars/user_krimson.png';
   const emailVerified = user?.emailVerified || false;
   const createdAt = user?.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : '';
   const lastSignIn = user?.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleDateString() : '';
@@ -75,47 +77,63 @@ export default function SettingsPage() {
     }
   };
 
-  const handleChangeEmail = async () => {
-    setEmailError('');
-    
-    if (!newEmail || !emailPassword) {
-      setEmailError('Please fill in all fields');
+  const handleEditName = () => {
+    setEditFirstName(firstName);
+    setEditLastName(lastName);
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = async () => {
+    setIsSaving(true);
+    try {
+      // TODO: Implement name update functionality
+      setTimeout(() => {
+        setIsSaving(false);
+        setIsEditingName(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Save name error:', error);
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditEmail = () => {
+    setEditEmail(userEmail);
+    setEmailPassword('');
+    setIsEditingEmail(true);
+  };
+
+  const handleSaveEmail = async () => {
+    if (!editEmail || !emailPassword) {
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
-      setEmailError('Please enter a valid email address');
+    if (!emailRegex.test(editEmail)) {
       return;
     }
 
-    if (newEmail === userEmail) {
-      setEmailError('New email must be different from current email');
+    if (editEmail === userEmail) {
+      setIsEditingEmail(false);
       return;
     }
 
     setIsChangingEmail(true);
     try {
-      const result = await changeEmail(newEmail, emailPassword);
+      const result = await changeEmail(editEmail, emailPassword);
       
       if (result.success) {
-        setEmailSuccess(true);
-        setTimeout(() => {
-          setShowChangeEmailModal(false);
-          setNewEmail('');
-          setEmailPassword('');
-          setEmailError('');
-          setEmailSuccess(false);
-          // Refresh the page to show updated user state
-          window.location.reload();
-        }, 3000);
+        setIsEditingEmail(false);
+        setEditEmail('');
+        setEmailPassword('');
+        // Refresh the page to show updated user state
+        window.location.reload();
       } else {
         const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to change email';
-        setEmailError(errorMessage);
+        console.error('Change email error:', errorMessage);
       }
     } catch (error) {
       console.error('Change email error:', error);
-      setEmailError('An unexpected error occurred');
     } finally {
       setIsChangingEmail(false);
     }
@@ -254,49 +272,174 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Profile Picture */}
-                  {photoURL && (
-                    <div className="flex items-center space-x-4 mb-4">
-                      <img 
-                        src={photoURL} 
-                        alt="Profile" 
-                        className="w-16 h-16 rounded-full"
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <Image
+                        src={photoURL}
+                        alt="Profile"
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 rounded-full object-cover"
                       />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Profile Picture</p>
-                        <p className="text-xs text-muted-foreground">From Google Account</p>
-                      </div>
                     </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" defaultValue={firstName} disabled={isGoogleUser} />
-                      {isGoogleUser && (
-                        <p className="text-xs text-muted-foreground">Managed by Google Account</p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" defaultValue={lastName} disabled={isGoogleUser} />
-                      {isGoogleUser && (
-                        <p className="text-xs text-muted-foreground">Managed by Google Account</p>
-                      )}
+                    <div>
+                      <p className="text-sm font-medium">Profile Picture</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isGoogleUser ? 'From Google Account' : 'Default avatar'}
+                      </p>
                     </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue={userEmail} disabled />
-                    {emailVerified && (
-                      <p className="text-xs text-green-600 flex items-center">
-                        ✓ Email verified
-                      </p>
+
+                  <Separator />
+
+                  {/* Name Fields */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Name</Label>
+                      {!isEditingName && !isGoogleUser && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleEditName}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {isEditingName ? (
+                      <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="editFirstName">First Name</Label>
+                            <Input 
+                              id="editFirstName" 
+                              value={editFirstName}
+                              onChange={(e) => setEditFirstName(e.target.value)}
+                              placeholder="First name"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="editLastName">Last Name</Label>
+                            <Input 
+                              id="editLastName" 
+                              value={editLastName}
+                              onChange={(e) => setEditLastName(e.target.value)}
+                              placeholder="Last name"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={handleSaveName}
+                            disabled={isSaving}
+                            size="sm"
+                          >
+                            {isSaving ? 'Saving...' : 'Save'}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setIsEditingName(false)}
+                            size="sm"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">First Name</p>
+                          <p className="text-sm font-medium">{firstName || 'Not set'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Last Name</p>
+                          <p className="text-sm font-medium">{lastName || 'Not set'}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {isGoogleUser && (
+                      <p className="text-xs text-muted-foreground">Name is managed by Google Account</p>
                     )}
                   </div>
 
+                  <Separator />
+
+                  {/* Email Field */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Email</Label>
+                      {!isEditingEmail && !isGoogleUser && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleEditEmail}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {isEditingEmail ? (
+                      <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                        <div className="space-y-2">
+                          <Label htmlFor="editEmail">New Email Address</Label>
+                          <Input 
+                            id="editEmail" 
+                            type="email" 
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            placeholder="Enter new email address"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="emailPassword">Current Password</Label>
+                          <Input 
+                            id="emailPassword" 
+                            type="password" 
+                            value={emailPassword}
+                            onChange={(e) => setEmailPassword(e.target.value)}
+                            placeholder="Enter current password"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={handleSaveEmail}
+                            disabled={isChangingEmail}
+                            size="sm"
+                          >
+                            {isChangingEmail ? 'Changing...' : 'Change Email'}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setIsEditingEmail(false)}
+                            size="sm"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-sm font-medium">{userEmail}</p>
+                        {emailVerified && (
+                          <p className="text-xs text-green-600 flex items-center mt-1">
+                            ✓ Email verified
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    
+                    {isGoogleUser && (
+                      <p className="text-xs text-muted-foreground">Email is managed by Google Account</p>
+                    )}
+                  </div>
+
+                  <Separator />
+
                   {/* Account Info */}
-                  <div className="pt-4 border-t space-y-2">
+                  <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Account Created:</span>
                       <span>{createdAt}</span>
@@ -312,10 +455,6 @@ export default function SettingsPage() {
                       </span>
                     </div>
                   </div>
-
-                  <Button onClick={handleSaveChanges} disabled={isSaving}>
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </Button>
                 </CardContent>
               </Card>
 
@@ -326,37 +465,20 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {!isGoogleUser && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-display text-sm">Change Email</h3>
-                          <p className="text-xs text-muted-foreground">Update your email address</p>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setShowChangeEmailModal(true)}
-                          disabled={isChangingEmail}
-                        >
-                          {isChangingEmail ? 'Changing...' : 'Change Email'}
-                        </Button>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-display text-sm">Change Password</h3>
+                        <p className="text-xs text-muted-foreground">Update your password</p>
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-display text-sm">Change Password</h3>
-                          <p className="text-xs text-muted-foreground">Update your password</p>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setShowChangePasswordModal(true)}
-                          disabled={isChangingPassword}
-                        >
-                          {isChangingPassword ? 'Changing...' : 'Change Password'}
-                        </Button>
-                      </div>
-                    </>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowChangePasswordModal(true)}
+                        disabled={isChangingPassword}
+                      >
+                        {isChangingPassword ? 'Changing...' : 'Change Password'}
+                      </Button>
+                    </div>
                   )}
                   
                   <div className="flex items-center justify-between">
@@ -530,88 +652,6 @@ export default function SettingsPage() {
           </Tabs>
         </div>
       </div>
-
-      {/* Change Email Modal */}
-      {showChangeEmailModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-background p-6 rounded-lg max-w-md w-full mx-4">
-            {!emailSuccess ? (
-              <>
-                <h3 className="text-lg font-display mb-4">Change Email Address</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Enter your new email address and current password to update your account.
-                </p>
-                
-                {emailError && (
-                  <div className="p-3 rounded-lg bg-red-50 border border-red-200 mb-4">
-                    <p className="text-sm text-red-700">{emailError}</p>
-                  </div>
-                )}
-                
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="newEmailInput">New Email Address</Label>
-                    <Input 
-                      id="newEmailInput" 
-                      type="email" 
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      placeholder="Enter new email address"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="emailPasswordInput">Current Password</Label>
-                    <Input 
-                      id="emailPasswordInput" 
-                      type="password" 
-                      value={emailPassword}
-                      onChange={(e) => setEmailPassword(e.target.value)}
-                      placeholder="Enter current password"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mt-6">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setShowChangeEmailModal(false);
-                      setNewEmail('');
-                      setEmailPassword('');
-                      setEmailError('');
-                    }}
-                    disabled={isChangingEmail}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleChangeEmail}
-                    disabled={isChangingEmail}
-                  >
-                    {isChangingEmail ? 'Changing...' : 'Change Email'}
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="text-center">
-                <div className="text-green-600 mb-4">
-                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-display mb-2">Email Changed!</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Your email has been updated successfully. 
-                  A verification email has been sent to your new email address.
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Please check your email and click the verification link to complete the process.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Change Password Modal */}
       {showChangePasswordModal && (

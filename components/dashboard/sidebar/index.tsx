@@ -3,6 +3,7 @@
 import type * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
 import {
   Sidebar,
@@ -86,21 +87,23 @@ const data = {
     title: "Desktop (Online)",
     status: "online",
   },
-  user: {
-    name: "TRADER",
-    email: "trader@blackstrike.io",
-    avatar: "/avatars/user_krimson.png",
-  },
 }
 
 export function DashboardSidebar({ className, ...props }: React.ComponentProps<typeof Sidebar>) {
   const isV0 = useIsV0()
   const pathname = usePathname()
+  const { user } = useAuth()
 
   const navItems = data.navMain[0].items.map((item) => ({
     ...item,
     isActive: pathname === item.url,
   }))
+
+  // Extract user information
+  const displayName = user?.displayName || '';
+  const firstName = displayName.split(' ')[0] || 'User';
+  const userEmail = user?.email || '';
+  const photoURL = user?.photoURL || '/avatars/user_krimson.png';
 
   return (
     <Sidebar {...props} className={cn("py-sides", className)}>
@@ -129,36 +132,15 @@ export function DashboardSidebar({ className, ...props }: React.ComponentProps<t
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  className={cn(item.locked && "pointer-events-none opacity-50")}
-                  data-disabled={item.locked}
-                >
-                  <SidebarMenuButton
-                    asChild={!item.locked}
-                    isActive={item.isActive}
-                    disabled={item.locked}
-                    className={cn("disabled:cursor-not-allowed", item.locked && "pointer-events-none")}
-                  >
-                    {item.locked ? (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={item.isActive}>
+                    <Link href={item.url}>
                       <div className="flex items-center gap-3 w-full">
                         <item.icon className="size-5" />
                         <span>{item.title}</span>
                       </div>
-                    ) : (
-                      <Link href={item.url}>
-                        <div className="flex items-center gap-3 w-full">
-                          <item.icon className="size-5" />
-                          <span>{item.title}</span>
-                        </div>
-                      </Link>
-                    )}
+                    </Link>
                   </SidebarMenuButton>
-                  {item.locked && (
-                    <SidebarMenuBadge>
-                      <LockIcon className="size-5 block" />
-                    </SidebarMenuBadge>
-                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -179,17 +161,18 @@ export function DashboardSidebar({ className, ...props }: React.ComponentProps<t
                   <PopoverTrigger className="flex gap-0.5 w-full group cursor-pointer">
                     <div className="shrink-0 flex size-14 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground overflow-clip">
                       <Image
-                        src={data.user.avatar || "/placeholder.svg"}
-                        alt={data.user.name}
+                        src={photoURL}
+                        alt={firstName}
                         width={120}
                         height={120}
+                        className="object-cover"
                       />
                     </div>
                     <div className="group/item pl-3 pr-1.5 pt-2 pb-1.5 flex-1 flex bg-sidebar-accent hover:bg-sidebar-accent-active/75 items-center rounded group-data-[state=open]:bg-sidebar-accent-active group-data-[state=open]:hover:bg-sidebar-accent-active group-data-[state=open]:text-sidebar-accent-foreground">
                       <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate text-xl font-display">{data.user.name}</span>
+                        <span className="truncate text-xl font-display">{firstName}</span>
                         <span className="truncate text-xs uppercase opacity-50 group-hover/item:opacity-100">
-                          {data.user.email}
+                          {userEmail}
                         </span>
                       </div>
                       <DotsVerticalIcon className="ml-auto size-4" />
@@ -197,14 +180,10 @@ export function DashboardSidebar({ className, ...props }: React.ComponentProps<t
                   </PopoverTrigger>
                   <PopoverContent className="w-56 p-0" side="bottom" align="end" sideOffset={4}>
                     <div className="flex flex-col">
-                      <button className="flex items-center px-4 py-2 text-sm hover:bg-accent">
-                        <LightningIcon className="mr-2 h-4 w-4" />
-                        Account
-                      </button>
-                      <button className="flex items-center px-4 py-2 text-sm hover:bg-accent">
+                      <Link href="/settings" className="flex items-center px-4 py-2 text-sm hover:bg-accent">
                         <GearIcon className="mr-2 h-4 w-4" />
                         Settings
-                      </button>
+                      </Link>
                     </div>
                   </PopoverContent>
                 </Popover>
