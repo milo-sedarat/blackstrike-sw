@@ -41,12 +41,12 @@ export default function Error({
                 Something went wrong!
               </h1>
               <p className="text-sm max-w-sm text-center text-muted-foreground text-balance">
-                An unexpected error occurred. Please try again or contact support if the problem persists.
+                An unexpected error occurred.
               </p>
               <div className="flex gap-4 mt-4">
                 <button
                   onClick={reset}
-                  className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all"
                 >
                   Try again
                 </button>
@@ -54,7 +54,7 @@ export default function Error({
                   href="/"
                   className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors"
                 >
-                  Go to Dashboard
+                  Go to Home
                 </a>
               </div>
             </div>
