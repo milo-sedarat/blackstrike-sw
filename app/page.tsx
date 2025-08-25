@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import TradingBots from "@/components/dashboard/trading-bots";
 import MarketAlerts from "@/components/dashboard/market-alerts";
-import AIChatbot from "@/components/dashboard/ai-chatbot";
+import AIBotCreator from "@/components/dashboard/ai-bot-creator";
+import LivePortfolio from "@/components/dashboard/live-portfolio";
 import Stat from "@/components/dashboard/stat";
 import Chart from "@/components/dashboard/chart";
 import LightningIcon from "@/components/icons/lightning";
@@ -151,11 +152,14 @@ function Dashboard() {
             {/* Market Alerts */}
             <MarketAlerts alerts={marketAlerts} />
           </div>
+          
+          {/* Live Portfolio */}
+          <LivePortfolio />
         </div>
 
-        {/* Right Column - AI Assistant */}
+        {/* Right Column - AI Bot Creator */}
         <div className="lg:col-span-1">
-          <AIChatbot />
+          <AIBotCreator />
         </div>
       </div>
 
