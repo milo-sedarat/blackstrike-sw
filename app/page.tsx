@@ -23,65 +23,7 @@ import BoomIcon from "@/components/icons/boom";
 
 
 
-const marketAlerts = [
-  {
-    title: "BTC/USDT",
-    value: "$45,000",
-    status: "HIGH",
-    variant: "success" as const
-  },
-  {
-    title: "ETH Volume",
-    value: "2.4M",
-    status: "SPIKE",
-    variant: "warning" as const
-  },
-  {
-    title: "SOL Price",
-    value: "$98.50",
-    status: "DOWN",
-    variant: "destructive" as const
-  }
-];
 
-
-
-
-
-const stats = [
-  {
-    label: "Total Portfolio",
-    value: "$124.7K",
-    description: "-$2.8K (-2.34%)",
-    icon: LightningIcon,
-    intent: "negative" as const,
-    direction: "down" as const
-  },
-  {
-    label: "Active Bots",
-    value: "6",
-    description: "+2 (+50%)",
-    icon: AtomIcon,
-    intent: "positive" as const,
-    direction: "up" as const
-  },
-  {
-    label: "24h Volume",
-    value: "$847K",
-    description: "+$12K (+1.49%)",
-    icon: BoomIcon,
-    intent: "positive" as const,
-    direction: "up" as const
-  },
-  {
-    label: "Win Rate",
-    value: "68.4%",
-    description: "+2.1% (+3.17%)",
-    icon: BellIcon,
-    intent: "positive" as const,
-    direction: "up" as const
-  }
-];
 
 function Dashboard() {
   return (
@@ -92,26 +34,6 @@ function Dashboard() {
         icon: LightningIcon,
       }}
     >
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Stat key={index} {...stat} />
-        ))}
-      </div>
-
-      {/* Portfolio Performance Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <GearIcon className="size-5" />
-            Portfolio Performance
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Chart />
-        </CardContent>
-      </Card>
-
       {/* Main Content and AI Assistant */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Trading Bots and Market Alerts */}
@@ -122,7 +44,7 @@ function Dashboard() {
             <TradingBots />
             
             {/* Market Alerts */}
-            <MarketAlerts alerts={marketAlerts} />
+            <MarketAlerts />
           </div>
           
           {/* Live Portfolio */}

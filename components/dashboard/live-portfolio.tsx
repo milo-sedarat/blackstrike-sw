@@ -9,15 +9,8 @@ import { marketDataService, type PortfolioData } from "@/lib/market-data"
 import { TrendingUp, TrendingDown, DollarSign, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-// Mock user holdings - in real app this would come from user's connected exchanges
-const mockHoldings = [
-  { symbol: 'BTC', amount: 0.5 },
-  { symbol: 'ETH', amount: 3.2 },
-  { symbol: 'SOL', amount: 25.0 },
-  { symbol: 'ADA', amount: 1000 },
-  { symbol: 'AVAX', amount: 15.0 },
-  { symbol: 'MATIC', amount: 500 }
-]
+// Empty holdings - will be populated from connected exchanges
+const mockHoldings: { symbol: string; amount: number }[] = []
 
 export default function LivePortfolio() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
@@ -62,7 +55,7 @@ export default function LivePortfolio() {
     )
   }
 
-  if (!portfolioData) {
+  if (!portfolioData || portfolioData.assets.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -73,7 +66,9 @@ export default function LivePortfolio() {
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
-            Failed to load portfolio data
+            <Activity className="size-12 mx-auto mb-4 text-muted-foreground/50" />
+            <p>No portfolio data</p>
+            <p className="text-sm">Connect exchanges to see your portfolio</p>
           </div>
         </CardContent>
       </Card>

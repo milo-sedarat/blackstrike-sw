@@ -1,42 +1,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Bell } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface MarketAlert {
-  title: string
-  value: string
-  status: string
-  variant: "success" | "warning" | "destructive"
-}
-
-interface MarketAlertsProps {
-  alerts: MarketAlert[]
-}
-
-export default function MarketAlerts({ alerts }: MarketAlertsProps) {
+export default function MarketAlerts() {
   return (
-    <Card className="h-fit">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-display">MARKET ALERTS</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {alerts.map((alert, index) => (
-          <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-            <div>
-              <div className="font-display text-sm">{alert.title}</div>
-              <div className="font-mono text-lg">{alert.value}</div>
-            </div>
-            <div
-              className={cn(
-                "text-xs font-mono px-2 py-1 rounded",
-                alert.variant === "success" && "text-success bg-success/10",
-                alert.variant === "warning" && "text-warning bg-warning/10",
-                alert.variant === "destructive" && "text-destructive bg-destructive/10",
-              )}
-            >
-              {alert.status}
-            </div>
+        <CardTitle className="flex items-center gap-2">
+          <div className="p-1.5 rounded-md bg-orange-500/10">
+            <Bell className="size-4 text-orange-400" />
           </div>
-        ))}
+          <span>Market Alerts</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-center py-8 text-muted-foreground">
+          <Bell className="size-12 mx-auto mb-4 text-muted-foreground/50" />
+          <p>No market alerts</p>
+          <p className="text-sm">Set up alerts to monitor price movements and market conditions</p>
+        </div>
       </CardContent>
     </Card>
   )
