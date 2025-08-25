@@ -73,6 +73,7 @@ export default function Widget({ widgetData }: WidgetProps) {
       hour12: !is24Hour,
       hour: "numeric",
       minute: "2-digit",
+      second: "2-digit",
     });
   };
 
