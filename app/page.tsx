@@ -8,10 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import Widget from "@/components/dashboard/widget";
 import TradingBots from "@/components/dashboard/trading-bots";
 import MarketAlerts from "@/components/dashboard/market-alerts";
-import SecurityStatus from "@/components/dashboard/security-status";
 import Stat from "@/components/dashboard/stat";
 import Chart from "@/components/dashboard/chart";
 import LightningIcon from "@/components/icons/lightning";
@@ -20,15 +18,6 @@ import BellIcon from "@/components/icons/bell";
 import GearIcon from "@/components/icons/gear";
 import LockIcon from "@/components/icons/lock";
 import BoomIcon from "@/components/icons/boom";
-
-// Dashboard data
-const widgetData = {
-  timezone: "UTC",
-  temperature: "72°F",
-  weather: "Sunny",
-  location: "New York, NY",
-  date: new Date().toISOString()
-};
 
 const tradingBots = [
   {
@@ -81,26 +70,7 @@ const marketAlerts = [
   }
 ];
 
-const securityStatuses = [
-  {
-    title: "API Keys",
-    value: "SECURE",
-    status: "2 min ago",
-    variant: "success" as const
-  },
-  {
-    title: "2FA",
-    value: "ENABLED",
-    status: "1 hour ago",
-    variant: "success" as const
-  },
-  {
-    title: "IP Whitelist",
-    value: "ACTIVE",
-    status: "30 min ago",
-    variant: "success" as const
-  }
-];
+
 
 
 
@@ -155,38 +125,26 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Trading Bots */}
-          <TradingBots bots={tradingBots} />
-          
-          {/* Market Alerts */}
-          <MarketAlerts alerts={marketAlerts} />
-          
-          {/* Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GearIcon className="size-5" />
-                Portfolio Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Chart />
-            </CardContent>
-          </Card>
-        </div>
+      {/* Portfolio Performance Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GearIcon className="size-5" />
+            Portfolio Performance
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Chart />
+        </CardContent>
+      </Card>
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Widget */}
-          <Widget widgetData={widgetData} />
-          
-          {/* Security Status */}
-          <SecurityStatus statuses={securityStatuses} />
-        </div>
+      {/* Trading Bots and Market Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Trading Bots */}
+        <TradingBots bots={tradingBots} />
+        
+        {/* Market Alerts */}
+        <MarketAlerts alerts={marketAlerts} />
       </div>
 
     </DashboardPageLayout>
