@@ -12,6 +12,9 @@ export default function MarketAlerts() {
             <Bell className="size-4 text-orange-400" />
           </div>
           <span>Market Alerts</span>
+          <Badge variant="outline" className="text-xs">
+            0 Active
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>

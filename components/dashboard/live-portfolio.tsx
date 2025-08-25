@@ -55,7 +55,7 @@ export default function LivePortfolio() {
     )
   }
 
-  if (!portfolioData || portfolioData.assets.length === 0) {
+  if (!portfolioData) {
     return (
       <Card>
         <CardHeader>
@@ -67,8 +67,7 @@ export default function LivePortfolio() {
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <Activity className="size-12 mx-auto mb-4 text-muted-foreground/50" />
-            <p>No portfolio data</p>
-            <p className="text-sm">Connect exchanges to see your portfolio</p>
+            <p>Loading portfolio data...</p>
           </div>
         </CardContent>
       </Card>
@@ -107,7 +106,7 @@ export default function LivePortfolio() {
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-4 rounded-lg bg-muted/50">
             <div className="text-2xl font-bold">
-              {formatCurrency(portfolioData.totalValue)}
+              {portfolioData.assets.length === 0 ? '$0' : formatCurrency(portfolioData.totalValue)}
             </div>
             <div className="text-sm text-muted-foreground">Total Value</div>
           </div>
@@ -115,14 +114,17 @@ export default function LivePortfolio() {
           <div className="text-center p-4 rounded-lg bg-muted/50">
             <div className={cn(
               "text-2xl font-bold flex items-center justify-center gap-1",
+              portfolioData.assets.length === 0 ? "text-muted-foreground" : 
               portfolioData.totalChangePercent24h >= 0 ? "text-green-600" : "text-red-600"
             )}>
-              {portfolioData.totalChangePercent24h >= 0 ? (
+              {portfolioData.assets.length === 0 ? (
+                <span>0%</span>
+              ) : portfolioData.totalChangePercent24h >= 0 ? (
                 <TrendingUp className="size-5" />
               ) : (
                 <TrendingDown className="size-5" />
               )}
-              {formatPercentage(portfolioData.totalChangePercent24h)}
+              {portfolioData.assets.length === 0 ? '0%' : formatPercentage(portfolioData.totalChangePercent24h)}
             </div>
             <div className="text-sm text-muted-foreground">24h Change</div>
           </div>
@@ -137,54 +139,67 @@ export default function LivePortfolio() {
             </Button>
           </div>
           
-          <div className="space-y-2">
-            {portfolioData.assets.slice(0, 5).map((asset) => (
-              <div key={asset.symbol} className="flex items-center justify-between p-3 rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-xs font-bold">{asset.symbol}</span>
+          {portfolioData.assets.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No assets</p>
+              <p className="text-sm">Connect exchanges to see your assets</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {portfolioData.assets.slice(0, 5).map((asset) => (
+                <div key={asset.symbol} className="flex items-center justify-between p-3 rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-xs font-bold">{asset.symbol}</span>
+                    </div>
+                    <div>
+                      <div className="font-medium">{asset.symbol}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {asset.amount.toFixed(4)} {asset.symbol}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium">{asset.symbol}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {asset.amount.toFixed(4)} {asset.symbol}
+                  
+                  <div className="text-right">
+                    <div className="font-medium">
+                      {formatCurrency(asset.value)}
+                    </div>
+                    <div className={cn(
+                      "text-xs",
+                      asset.changePercent24h >= 0 ? "text-green-600" : "text-red-600"
+                    )}>
+                      {formatPercentage(asset.changePercent24h)}
                     </div>
                   </div>
                 </div>
-                
-                <div className="text-right">
-                  <div className="font-medium">
-                    {formatCurrency(asset.value)}
-                  </div>
-                  <div className={cn(
-                    "text-xs",
-                    asset.changePercent24h >= 0 ? "text-green-600" : "text-red-600"
-                  )}>
-                    {formatPercentage(asset.changePercent24h)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Portfolio Allocation */}
         <div className="space-y-3">
           <h4 className="font-medium">Allocation</h4>
-          <div className="space-y-2">
-            {portfolioData.assets.map((asset) => {
-              const percentage = (asset.value / portfolioData.totalValue) * 100
-              return (
-                <div key={asset.symbol} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>{asset.symbol}</span>
-                    <span>{percentage.toFixed(1)}%</span>
+          {portfolioData.assets.length === 0 ? (
+            <div className="text-center py-4 text-muted-foreground">
+              <p className="text-sm">No allocation data</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {portfolioData.assets.map((asset) => {
+                const percentage = (asset.value / portfolioData.totalValue) * 100
+                return (
+                  <div key={asset.symbol} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{asset.symbol}</span>
+                      <span>{percentage.toFixed(1)}%</span>
+                    </div>
+                    <Progress value={percentage} className="h-2" />
                   </div>
-                  <Progress value={percentage} className="h-2" />
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

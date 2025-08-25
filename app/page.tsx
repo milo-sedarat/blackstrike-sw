@@ -34,6 +34,51 @@ function Dashboard() {
         icon: LightningIcon,
       }}
     >
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Stat 
+          label="Total Portfolio"
+          value="$0"
+          description="No data"
+          icon={LightningIcon}
+          intent="neutral"
+        />
+        <Stat 
+          label="Active Bots"
+          value="0"
+          description="No bots"
+          icon={AtomIcon}
+          intent="neutral"
+        />
+        <Stat 
+          label="24h Volume"
+          value="$0"
+          description="No trades"
+          icon={BoomIcon}
+          intent="neutral"
+        />
+        <Stat 
+          label="Win Rate"
+          value="0%"
+          description="No data"
+          icon={BellIcon}
+          intent="neutral"
+        />
+      </div>
+
+      {/* Portfolio Performance Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GearIcon className="size-5" />
+            Portfolio Performance
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Chart />
+        </CardContent>
+      </Card>
+
       {/* Main Content and AI Assistant */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Trading Bots and Market Alerts */}
