@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  hummingbot:
+    image: hummingbot/hummingbot:latest
+    container_name: blackstrike-hummingbot
+    ports:
+      - "15888:15888"  # Gateway API
+      - "15889:15889"  # Gateway WebSocket
+    volumes:
+      - ./conf:/conf
+      - ./logs:/logs
+      - ./data:/data
+      - ./scripts:/scripts
+    environment:
+      - GATEWAY_API_HOST=0.0.0.0
+      - GATEWAY_API_PORT=15888
+      - GATEWAY_WS_HOST=0.0.0.0
+      - GATEWAY_WS_PORT=15889
+    command: ["python", "bin/hummingbot.py", "--gateway-api", "--gateway-api-port", "15888", "--gateway-ws-port", "15889"]
+    restart: unless-stopped
+    networks:
+      - hummingbot-network
+
+networks:
+  hummingbot-network:
+    driver: bridge 

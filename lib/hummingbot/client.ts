@@ -59,9 +59,6 @@ export class HummingbotClient extends EventEmitter {
     const url = `${this.config.gatewayUrl}${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
-      'X-API-Key': this.config.apiKey,
-      'X-API-Secret': this.config.apiSecret,
-      'X-User-ID': this.config.userId,
       ...options.headers,
     };
 
