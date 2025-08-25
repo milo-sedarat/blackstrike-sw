@@ -18,8 +18,10 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
   const is404Page = pathname === '/404' || pathname === '/not-found' || pathname === '/login' || pathname === '/signup';
+  const isRootPage = pathname === '/';
+  const isPublicPage = isAuthPage || is404Page || isRootPage;
 
-  if (isAuthPage || is404Page) {
+  if (isPublicPage) {
     return <>{children}</>;
   }
 
