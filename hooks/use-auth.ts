@@ -34,13 +34,6 @@ export function useAuth() {
   const signIn = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Check if email is verified
-      if (!result.user.emailVerified) {
-        await signOut(auth);
-        return { success: false, error: new Error('Please verify your email before signing in. Check your inbox for a verification link.') };
-      }
-      
       return { success: true, user: result.user };
     } catch (error) {
       return { success: false, error };
