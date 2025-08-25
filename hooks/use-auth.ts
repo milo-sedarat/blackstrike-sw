@@ -95,6 +95,55 @@ export function useAuth() {
     }
   };
 
+  const changeEmail = async (newEmail: string, password: string) => {
+    try {
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+
+      if (user.providerData.some(provider => provider.providerId === 'google.com')) {
+        throw new Error('Cannot change email for Google accounts. Please detach from Google first.');
+      }
+
+      // Re-authenticate user before changing email
+      const credential = EmailAuthProvider.credential(user.email!, password);
+      await reauthenticateWithCredential(user, credential);
+      
+      // Update email
+      await updateEmail(user, newEmail);
+      
+      // Send email verification for new email
+      await sendEmailVerification(user);
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+
+      if (user.providerData.some(provider => provider.providerId === 'google.com')) {
+        throw new Error('Cannot change password for Google accounts. Please detach from Google first.');
+      }
+
+      // Re-authenticate user before changing password
+      const credential = EmailAuthProvider.credential(user.email!, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      
+      // Update password
+      await updatePassword(user, newPassword);
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  };
+
   const detachGoogleAccount = async (newEmail: string, newPassword: string) => {
     try {
       if (!user) {
@@ -133,6 +182,8 @@ export function useAuth() {
     logout,
     resetPassword,
     signInWithGoogle,
+    changeEmail,
+    changePassword,
     detachGoogleAccount,
   };
 } 

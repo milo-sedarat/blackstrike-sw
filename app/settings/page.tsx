@@ -14,17 +14,36 @@ import LockIcon from "@/components/icons/lock"
 import { useAuth } from "@/hooks/use-auth"
 
 export default function SettingsPage() {
-  const { user, logout, detachGoogleAccount } = useAuth();
+  const { user, logout, detachGoogleAccount, changeEmail, changePassword } = useAuth();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDetaching, setIsDetaching] = useState(false);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  
+  // Detach Google modal states
   const [showDetachModal, setShowDetachModal] = useState(false);
   const [detachEmail, setDetachEmail] = useState('');
   const [detachPassword, setDetachPassword] = useState('');
   const [detachConfirmPassword, setDetachConfirmPassword] = useState('');
   const [detachError, setDetachError] = useState('');
   const [detachSuccess, setDetachSuccess] = useState(false);
+  
+  // Change email modal states
+  const [showChangeEmailModal, setShowChangeEmailModal] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  
+  // Change password modal states
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
   
   // Extract user information
   const userEmail = user?.email || '';
@@ -53,6 +72,96 @@ export default function SettingsPage() {
     } catch (error) {
       console.error('Logout error:', error);
       setIsLoggingOut(false);
+    }
+  };
+
+  const handleChangeEmail = async () => {
+    setEmailError('');
+    
+    if (!newEmail || !emailPassword) {
+      setEmailError('Please fill in all fields');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    if (newEmail === userEmail) {
+      setEmailError('New email must be different from current email');
+      return;
+    }
+
+    setIsChangingEmail(true);
+    try {
+      const result = await changeEmail(newEmail, emailPassword);
+      
+      if (result.success) {
+        setEmailSuccess(true);
+        setTimeout(() => {
+          setShowChangeEmailModal(false);
+          setNewEmail('');
+          setEmailPassword('');
+          setEmailError('');
+          setEmailSuccess(false);
+          // Refresh the page to show updated user state
+          window.location.reload();
+        }, 3000);
+      } else {
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to change email';
+        setEmailError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Change email error:', error);
+      setEmailError('An unexpected error occurred');
+    } finally {
+      setIsChangingEmail(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordError('');
+    
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      setPasswordError('Please fill in all fields');
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const result = await changePassword(currentPassword, newPassword);
+      
+      if (result.success) {
+        setPasswordSuccess(true);
+        setTimeout(() => {
+          setShowChangePasswordModal(false);
+          setCurrentPassword('');
+          setNewPassword('');
+          setConfirmNewPassword('');
+          setPasswordError('');
+          setPasswordSuccess(false);
+        }, 3000);
+      } else {
+        const errorMessage = result.error instanceof Error ? result.error.message : 'Failed to change password';
+        setPasswordError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Change password error:', error);
+      setPasswordError('An unexpected error occurred');
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -216,6 +325,40 @@ export default function SettingsPage() {
                   <CardTitle className="text-lg font-display">Account Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {!isGoogleUser && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-display text-sm">Change Email</h3>
+                          <p className="text-xs text-muted-foreground">Update your email address</p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setShowChangeEmailModal(true)}
+                          disabled={isChangingEmail}
+                        >
+                          {isChangingEmail ? 'Changing...' : 'Change Email'}
+                        </Button>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-display text-sm">Change Password</h3>
+                          <p className="text-xs text-muted-foreground">Update your password</p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setShowChangePasswordModal(true)}
+                          disabled={isChangingPassword}
+                        >
+                          {isChangingPassword ? 'Changing...' : 'Change Password'}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-display text-sm">Sign Out</h3>
@@ -305,29 +448,29 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-display text-sm">Trade Notifications</h3>
-                        <p className="text-xs text-muted-foreground">Get notified when trades are executed</p>
+                        <h3 className="font-display text-sm">Email Notifications</h3>
+                        <p className="text-xs text-muted-foreground">Receive notifications via email</p>
                       </div>
                       <Switch defaultChecked />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-display text-sm">Bot Status Updates</h3>
-                        <p className="text-xs text-muted-foreground">Alerts when bots start, stop, or encounter errors</p>
+                        <h3 className="font-display text-sm">Push Notifications</h3>
+                        <p className="text-xs text-muted-foreground">Receive push notifications</p>
                       </div>
                       <Switch defaultChecked />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-display text-sm">Market Alerts</h3>
-                        <p className="text-xs text-muted-foreground">Price alerts and market movement notifications</p>
+                        <h3 className="font-display text-sm">Trading Alerts</h3>
+                        <p className="text-xs text-muted-foreground">Get notified about trading opportunities</p>
                       </div>
                       <Switch />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-display text-sm">Weekly Reports</h3>
-                        <p className="text-xs text-muted-foreground">Weekly performance summary emails</p>
+                        <h3 className="font-display text-sm">Security Alerts</h3>
+                        <p className="text-xs text-muted-foreground">Get notified about security events</p>
                       </div>
                       <Switch defaultChecked />
                     </div>
@@ -347,15 +490,11 @@ export default function SettingsPage() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="currentPassword">Current Password</Label>
-                        <Input id="currentPassword" type="password" />
+                        <Input id="currentPassword" type="password" placeholder="Enter current password" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="newPassword">New Password</Label>
-                        <Input id="newPassword" type="password" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                        <Input id="confirmPassword" type="password" />
+                        <Input id="newPassword" type="password" placeholder="Enter new password" />
                       </div>
                       <Button>Update Password</Button>
                     </div>
@@ -384,13 +523,6 @@ export default function SettingsPage() {
                         {isGoogleUser ? 'Managed by Google' : 'Enable 2FA'}
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-display text-sm">Login Notifications</h3>
-                        <p className="text-xs text-muted-foreground">Get notified of new login attempts</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -398,6 +530,177 @@ export default function SettingsPage() {
           </Tabs>
         </div>
       </div>
+
+      {/* Change Email Modal */}
+      {showChangeEmailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-background p-6 rounded-lg max-w-md w-full mx-4">
+            {!emailSuccess ? (
+              <>
+                <h3 className="text-lg font-display mb-4">Change Email Address</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Enter your new email address and current password to update your account.
+                </p>
+                
+                {emailError && (
+                  <div className="p-3 rounded-lg bg-red-50 border border-red-200 mb-4">
+                    <p className="text-sm text-red-700">{emailError}</p>
+                  </div>
+                )}
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="newEmailInput">New Email Address</Label>
+                    <Input 
+                      id="newEmailInput" 
+                      type="email" 
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="Enter new email address"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="emailPasswordInput">Current Password</Label>
+                    <Input 
+                      id="emailPasswordInput" 
+                      type="password" 
+                      value={emailPassword}
+                      onChange={(e) => setEmailPassword(e.target.value)}
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowChangeEmailModal(false);
+                      setNewEmail('');
+                      setEmailPassword('');
+                      setEmailError('');
+                    }}
+                    disabled={isChangingEmail}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleChangeEmail}
+                    disabled={isChangingEmail}
+                  >
+                    {isChangingEmail ? 'Changing...' : 'Change Email'}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="text-green-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-display mb-2">Email Changed!</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your email has been updated successfully. 
+                  A verification email has been sent to your new email address.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Please check your email and click the verification link to complete the process.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-background p-6 rounded-lg max-w-md w-full mx-4">
+            {!passwordSuccess ? (
+              <>
+                <h3 className="text-lg font-display mb-4">Change Password</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Enter your current password and choose a new password.
+                </p>
+                
+                {passwordError && (
+                  <div className="p-3 rounded-lg bg-red-50 border border-red-200 mb-4">
+                    <p className="text-sm text-red-700">{passwordError}</p>
+                  </div>
+                )}
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="currentPasswordInput">Current Password</Label>
+                    <Input 
+                      id="currentPasswordInput" 
+                      type="password" 
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="newPasswordInput">New Password</Label>
+                    <Input 
+                      id="newPasswordInput" 
+                      type="password" 
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password (min 6 characters)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmNewPasswordInput">Confirm New Password</Label>
+                    <Input 
+                      id="confirmNewPasswordInput" 
+                      type="password" 
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowChangePasswordModal(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmNewPassword('');
+                      setPasswordError('');
+                    }}
+                    disabled={isChangingPassword}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleChangePassword}
+                    disabled={isChangingPassword}
+                  >
+                    {isChangingPassword ? 'Changing...' : 'Change Password'}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="text-green-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-display mb-2">Password Changed!</h3>
+                <p className="text-sm text-muted-foreground">
+                  Your password has been updated successfully.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Detach Google Modal */}
       {showDetachModal && (
