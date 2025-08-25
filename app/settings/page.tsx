@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import DashboardPageLayout from "@/components/dashboard/layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,8 +11,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import GearIcon from "@/components/icons/gear"
 import LockIcon from "@/components/icons/lock"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function SettingsPage() {
+  const { user } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Extract user information
+  const userEmail = user?.email || '';
+  const displayName = user?.displayName || '';
+  const firstName = displayName.split(' ')[0] || '';
+  const lastName = displayName.split(' ').slice(1).join(' ') || '';
+  const photoURL = user?.photoURL || '';
+  const emailVerified = user?.emailVerified || false;
+  const createdAt = user?.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : '';
+  const lastSignIn = user?.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleDateString() : '';
+
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    // TODO: Implement save functionality
+    setTimeout(() => {
+      setIsSaving(false);
+    }, 1000);
+  };
+
   return (
     <DashboardPageLayout
       header={{
@@ -33,20 +58,42 @@ export default function SettingsPage() {
               <CardTitle className="text-lg font-display">Profile Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Profile Picture */}
+              {photoURL && (
+                <div className="flex items-center space-x-4 mb-4">
+                  <img 
+                    src={photoURL} 
+                    alt="Profile" 
+                    className="w-16 h-16 rounded-full"
+                  />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Profile Picture</p>
+                    <p className="text-xs text-muted-foreground">From Google Account</p>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" defaultValue="John" />
+                  <Input id="firstName" defaultValue={firstName} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" defaultValue="Trader" />
+                  <Input id="lastName" defaultValue={lastName} />
                 </div>
               </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue="trader@blackstrike.io" />
+                <Input id="email" type="email" defaultValue={userEmail} disabled />
+                {emailVerified && (
+                  <p className="text-xs text-green-600 flex items-center">
+                    ✓ Email verified
+                  </p>
+                )}
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="timezone">Timezone</Label>
                 <Select defaultValue="utc">
@@ -61,7 +108,28 @@ export default function SettingsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button>Save Changes</Button>
+
+              {/* Account Info */}
+              <div className="pt-4 border-t space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Account Created:</span>
+                  <span>{createdAt}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Last Sign In:</span>
+                  <span>{lastSignIn}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Sign-in Provider:</span>
+                  <span className="capitalize">
+                    {user?.providerData?.[0]?.providerId?.replace('.com', '') || 'Email/Password'}
+                  </span>
+                </div>
+              </div>
+
+              <Button onClick={handleSaveChanges} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
